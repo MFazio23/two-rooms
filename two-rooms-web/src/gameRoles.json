@@ -1,0 +1,42 @@
+[
+  {
+    "id": "presidentBomber",
+    "text": "President/Bomber",
+    "required": true
+  },
+  {
+    "id": "blueRed",
+    "text": "Blue Team/Red Team",
+    "required": true
+  },
+  {
+    "id": "gambler",
+    "text": "Gambler",
+    "required": true
+  },
+  {
+    "id": "angel",
+    "text": "Angel",
+    "required": false
+  },
+  {
+    "id": "blind",
+    "text": "Blind",
+    "required": false
+  },
+  {
+    "id": "clown",
+    "text": "Clown",
+    "required": false
+  },
+  {
+    "id": "demon",
+    "text": "Demon",
+    "required": false
+  },
+  {
+    "id": "shyGuy",
+    "text": "Shy Guy",
+    "required": false
+  }
+]
