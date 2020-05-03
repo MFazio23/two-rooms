@@ -6,6 +6,7 @@ import CardContent from "@material-ui/core/CardContent";
 import blue from "@material-ui/core/colors/blue";
 import red from "@material-ui/core/colors/red";
 import PlayersGrid from "../components/PlayersGrid";
+import {green} from "@material-ui/core/colors";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -21,11 +22,19 @@ const useStyles = makeStyles(theme => ({
     },
     blueTeam: {
         color: 'white',
-        backgroundColor: blue.main
+        backgroundColor: blue[500]
     },
     redTeam: {
         color: 'white',
-        backgroundColor: red.main
+        backgroundColor: red[500]
+    },
+    greenTeam: {
+        color: 'white',
+        backgroundColor: green[500]
+    },
+    grayTeam: {
+        color: 'black',
+        backgroundColor: 'gray'
     }
 }));
 
