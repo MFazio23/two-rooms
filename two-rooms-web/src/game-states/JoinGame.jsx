@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
     },
     clearFormButton: {},
     joinGameButton: {}
-}))
+}));
 
 export default function JoinGame(props) {
     const classes = useStyles();

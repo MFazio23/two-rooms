@@ -1,42 +1,98 @@
 [
   {
-    "id": "presidentBomber",
-    "text": "President/Bomber",
-    "required": true
+    "id": "president",
+    "text": "President",
+    "team": "Blue",
+    "required": true,
+    "shortDescription": "Avoid the bomber",
+    "description": ""
   },
   {
-    "id": "blueRed",
-    "text": "Blue Team/Red Team",
-    "required": true
+    "id": "bomber",
+    "text": "Bomber",
+    "team": "Red",
+    "required": true,
+    "shortDescription": "Be with the president",
+    "description": ""
+  },
+  {
+    "id": "blue",
+    "text": "Blue Team",
+    "team": "Blue",
+    "required": true,
+    "shortDescription": "Keep the president away from the bomber",
+    "description": ""
+  },
+  {
+    "id": "red",
+    "text": "Red Team",
+    "team": "Red",
+    "required": true,
+    "shortDescription": "",
+    "description": ""
   },
   {
     "id": "gambler",
     "text": "Gambler",
-    "required": true
+    "team": "Gray",
+    "required": true,
+    "shortDescription": "Guess if red, blue, or neither team won",
+    "description": ""
   },
   {
     "id": "blind",
     "text": "Blind",
-    "required": false
+    "required": false,
+    "shortDescription": "Keep your eyes closed",
+    "description": ""
   },
   {
     "id": "clown",
     "text": "Clown",
-    "required": false
+    "required": false,
+    "shortDescription": "Smile... always",
+    "description": ""
   },
   {
     "id": "shyGuy",
     "text": "Shy Guy",
-    "required": false
+    "required": false,
+    "shortDescription": "",
+    "description": ""
   },
   {
-    "id": "angelDemon",
-    "text": "Angel/Demon",
-    "required": false
+    "id": "mime",
+    "text": "Mime",
+    "required": false,
+    "shortDescription": "Never speak",
+    "description": ""
   },
   {
-    "id": "rivalSurvivor",
-    "text": "Rival/Survivor",
-    "required": false
+    "id": "angel",
+    "text": "Angel",
+    "required": false,
+    "shortDescription": "Tell the truth",
+    "description": ""
+  },
+  {
+    "id": "demon",
+    "text": "Demon",
+    "required": false,
+    "shortDescription": "Lie",
+    "description": ""
+  },
+  {
+    "id": "rival",
+    "text": "Rival",
+    "required": false,
+    "shortDescription": "",
+    "description": ""
+  },
+  {
+    "id": "survivor",
+    "text": "Survivor",
+    "required": false,
+    "shortDescription": "",
+    "description": ""
   }
 ]

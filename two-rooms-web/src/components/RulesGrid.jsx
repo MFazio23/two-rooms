@@ -3,13 +3,9 @@ import Grid from "@material-ui/core/Grid";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import {makeStyles} from "@material-ui/core/styles";
-import orange from "@material-ui/core/colors/orange";
 
 const useStyles = makeStyles(theme => ({
-    disabledSwitch: {
-        backgroundColor: "blue",
-        thumbOnColor: "yellow"
-    }
+
 }));
 
 export default function RulesGrid(props) {
@@ -22,7 +18,7 @@ export default function RulesGrid(props) {
                 <FormControlLabel
                     control={
                         <Switch color={role.required ? 'secondary' : 'primary'} checked={props.gameInfo[role.id]}
-                                name={role.id} classes={{ disabled: classes.disabledSwitch }} disabled={role.required}/>}
+                                name={role.id} />}
                     label={role.text}
                 />
             </Grid>

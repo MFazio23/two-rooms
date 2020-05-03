@@ -6,6 +6,8 @@ import {blue, teal} from "@material-ui/core/colors";
 import CreateGame from "./game-states/CreateGame";
 import UpcomingGame from "./game-states/UpcomingGame";
 import gameRoles from "./gameRoles.json";
+import InProgressGame from "./game-states/InProgressGame";
+import EndedGame from "./game-states/EndedGame";
 
 const theme = createMuiTheme({
     palette: {
@@ -32,7 +34,7 @@ const theme = createMuiTheme({
 const getSelectedGameInfo = () => {
     //TODO: Map the selected game roles with what's in here.
 
-    return Object.assign({}, ...gameRoles.map(role => ({[role.id]: role.required})));
+    return Object.assign({}, ...gameRoles.map(role => ({[role.id]: role.required || role.text === 'Clown' || role.text === 'Angel/Demon'})));
 }
 
 function App() {
@@ -41,16 +43,27 @@ function App() {
 
     const gameInfo = getSelectedGameInfo();
 
-    const [flow, setFlow] = useState("upcoming");
+    //TODO: This comes from FB.
+    const roundInfo = {
+        roundNumber: 2,
+        swapCount: 2
+    };
+
+    const [flow, setFlow] = useState("ended");
 
     const updateFlow = (flow) => setFlow(flow);
 
     let flowComponent = <JoinGame updateFlow={updateFlow}/>
 
-    if (flow === 'create') flowComponent = <CreateGame updateFlow={updateFlow}/>;
-    if (flow === 'upcoming') {
+    if (flow === 'create') {
+        flowComponent = <CreateGame updateFlow={updateFlow}/>;
+    } else if (flow === 'upcoming') {
         flowComponent =
             <UpcomingGame updateFlow={updateFlow} gameRoles={gameRoles} gameInfo={gameInfo} gameId={currentGameId}/>;
+    } else if (flow === 'inProgress') {
+        flowComponent = <InProgressGame updateFlow={updateFlow} gameId={currentGameId} roundInfo={roundInfo}/>
+    } else if (flow === 'ended') {
+        flowComponent = <EndedGame updateFlow={updateFlow} gameId={currentGameId}/>
     }
 
     return (

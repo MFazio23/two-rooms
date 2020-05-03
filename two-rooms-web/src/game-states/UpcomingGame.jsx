@@ -1,13 +1,14 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {makeStyles} from "@material-ui/core/styles";
 import RulesGrid from "../components/RulesGrid";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
-import gameRoles from "../gameRoles.json";
 import CardActions from "@material-ui/core/CardActions";
 import Button from "@material-ui/core/Button";
 import red from "@material-ui/core/colors/red";
+import PlayersGrid from "../components/PlayersGrid";
+import LeaveGameDialog from "../components/LeaveGameDialog";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -21,13 +22,22 @@ const useStyles = makeStyles(theme => ({
         paddingBottom: 10,
         margin: 10
     },
+    leaveGameButtons: {
+        justifyContent: "center"
+    },
     leaveGameButton: {
         backgroundColor: red
+    },
+    leaveGameDialog: {
+        textAlign: "center"
     }
-}))
+}));
 
 export default function UpcomingGame(props) {
     const classes = useStyles();
+    const [dialogOpen, setDialogOpen] = useState(false);
+
+    const closeDialog = () => setDialogOpen(false)
 
     return (
         <div className={classes.container}>
@@ -42,16 +52,17 @@ export default function UpcomingGame(props) {
                 <Card className={classes.card}>
                     <CardHeader subheader="Current Players"/>
                     <CardContent>
-
+                        <PlayersGrid/>
                     </CardContent>
-                    <CardActions className={classes.createGameButtons}>
+                    <CardActions className={classes.leaveGameButtons}>
                         <Button variant="contained" size="large" classes={{root: classes.leaveGameButton}}
-                                onClick={() => props.updateFlow('join')}>
+                                onClick={() => setDialogOpen(true)}>
                             Leave This Game?
                         </Button>
                     </CardActions>
                 </Card>
             </div>
+            <LeaveGameDialog open={dialogOpen} onClose={closeDialog} />
         </div>
     )
 }
