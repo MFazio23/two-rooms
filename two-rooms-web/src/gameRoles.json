@@ -2,7 +2,7 @@
   {
     "id": "president",
     "text": "President",
-    "team": "Blue",
+    "team": "blue",
     "required": true,
     "shortDescription": "Avoid the bomber",
     "description": ""
@@ -10,7 +10,7 @@
   {
     "id": "bomber",
     "text": "Bomber",
-    "team": "Red",
+    "team": "red",
     "required": true,
     "shortDescription": "Be with the president",
     "description": ""
@@ -18,7 +18,7 @@
   {
     "id": "blue",
     "text": "Blue Team",
-    "team": "Blue",
+    "team": "blue",
     "required": true,
     "shortDescription": "Keep the president away from the bomber",
     "description": ""
@@ -26,7 +26,7 @@
   {
     "id": "red",
     "text": "Red Team",
-    "team": "Red",
+    "team": "red",
     "required": true,
     "shortDescription": "",
     "description": ""
@@ -34,7 +34,7 @@
   {
     "id": "gambler",
     "text": "Gambler",
-    "team": "Gray",
+    "team": "gray",
     "required": true,
     "shortDescription": "Guess if red, blue, or neither team won",
     "description": ""

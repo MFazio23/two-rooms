@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
         margin: 10
     },
     leaveGameButtons: {
-        justifyContent: "center"
+        justifyContent: "space-around"
     },
     leaveGameButton: {
         backgroundColor: red
@@ -32,6 +32,11 @@ const useStyles = makeStyles(theme => ({
         textAlign: "center"
     }
 }));
+
+const startGame = () => {
+    //TODO: Fill this in.
+    console.log("This will start the game.");
+}
 
 export default function UpcomingGame(props) {
     const classes = useStyles();
@@ -59,6 +64,10 @@ export default function UpcomingGame(props) {
                                 onClick={() => setDialogOpen(true)}>
                             Leave This Game?
                         </Button>
+                        {props.currentUser.isOwner && <Button variant="contained" color="secondary" size="large" classes={{root: classes.leaveGameButton}}
+                                onClick={startGame}>
+                            Start Game
+                        </Button>}
                     </CardActions>
                 </Card>
             </div>

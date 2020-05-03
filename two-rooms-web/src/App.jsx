@@ -49,6 +49,11 @@ function App() {
         swapCount: 2
     };
 
+    //TODO: This will be a firebase user.
+    const currentUser = {
+        isOwner: true
+    };
+
     const [flow, setFlow] = useState("ended");
 
     const updateFlow = (flow) => setFlow(flow);
@@ -59,11 +64,11 @@ function App() {
         flowComponent = <CreateGame updateFlow={updateFlow}/>;
     } else if (flow === 'upcoming') {
         flowComponent =
-            <UpcomingGame updateFlow={updateFlow} gameRoles={gameRoles} gameInfo={gameInfo} gameId={currentGameId}/>;
+            <UpcomingGame currentUser={currentUser} updateFlow={updateFlow} gameRoles={gameRoles} gameInfo={gameInfo} gameId={currentGameId}/>;
     } else if (flow === 'inProgress') {
         flowComponent = <InProgressGame updateFlow={updateFlow} gameId={currentGameId} roundInfo={roundInfo}/>
     } else if (flow === 'ended') {
-        flowComponent = <EndedGame updateFlow={updateFlow} gameId={currentGameId}/>
+        flowComponent = <EndedGame currentUser={currentUser} updateFlow={updateFlow} gameId={currentGameId}/>
     }
 
     return (

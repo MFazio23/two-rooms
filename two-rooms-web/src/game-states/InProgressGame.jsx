@@ -50,14 +50,14 @@ const useStyles = makeStyles(theme => ({
 export default function InProgressGame(props) {
     const classes = useStyles();
 
-    const role = gameRoles.find(role => role.id === "bomber");
+    const role = gameRoles.find(role => role.id === "president");
 
     const getTeamClass = (team) => {
         let teamClass = 'grayTeam';
 
-        if(team === 'Blue') teamClass = 'blueTeam';
-        else if (team === 'Red') teamClass = 'redTeam';
-        else if (team === 'Green') teamClass = 'greenTeam';
+        if(team === 'blue') teamClass = 'blueTeam';
+        else if (team === 'red') teamClass = 'redTeam';
+        else if (team === 'green') teamClass = 'greenTeam';
 
         return classes[teamClass];
     }
@@ -70,7 +70,7 @@ export default function InProgressGame(props) {
                     <CardContent className={classes.roles}>
                         <Typography>Round {props.roundInfo.roundNumber}</Typography>
                         {/*TODO: End should come from Firebase.*/}
-                        <RoundTimer endDateTime="2020-05-03T06:22:44.123"/>
+                        <RoundTimer endDateTime="2020-05-03T17:47:44.123"/>
                         <Typography>Swap {props.roundInfo.swapCount} {props.roundInfo.swapCount === 1 ? 'person' : 'people'}</Typography>
                     </CardContent>
                 </Card>
