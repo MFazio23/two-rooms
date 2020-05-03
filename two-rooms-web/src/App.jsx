@@ -4,6 +4,8 @@ import JoinGame from "./game-states/JoinGame";
 import {createMuiTheme, ThemeProvider} from '@material-ui/core/styles';
 import {blue, teal} from "@material-ui/core/colors";
 import CreateGame from "./game-states/CreateGame";
+import UpcomingGame from "./game-states/UpcomingGame";
+import gameRoles from "./gameRoles.json";
 
 const theme = createMuiTheme({
     palette: {
@@ -27,14 +29,29 @@ const theme = createMuiTheme({
     }
 });
 
+const getSelectedGameInfo = () => {
+    //TODO: Map the selected game roles with what's in here.
+
+    return Object.assign({}, ...gameRoles.map(role => ({[role.id]: role.required})));
+}
+
 function App() {
-    const [flow, setFlow] = useState("create");
+    //TODO: Get the game ID from somewhere.
+    const currentGameId = "FAZTST";
+
+    const gameInfo = getSelectedGameInfo();
+
+    const [flow, setFlow] = useState("upcoming");
 
     const updateFlow = (flow) => setFlow(flow);
 
     let flowComponent = <JoinGame updateFlow={updateFlow}/>
 
     if (flow === 'create') flowComponent = <CreateGame updateFlow={updateFlow}/>;
+    if (flow === 'upcoming') {
+        flowComponent =
+            <UpcomingGame updateFlow={updateFlow} gameRoles={gameRoles} gameInfo={gameInfo} gameId={currentGameId}/>;
+    }
 
     return (
         <ThemeProvider theme={theme}>

@@ -15,11 +15,6 @@
     "required": true
   },
   {
-    "id": "angel",
-    "text": "Angel",
-    "required": false
-  },
-  {
     "id": "blind",
     "text": "Blind",
     "required": false
@@ -30,13 +25,18 @@
     "required": false
   },
   {
-    "id": "demon",
-    "text": "Demon",
+    "id": "shyGuy",
+    "text": "Shy Guy",
     "required": false
   },
   {
-    "id": "shyGuy",
-    "text": "Shy Guy",
+    "id": "angelDemon",
+    "text": "Angel/Demon",
+    "required": false
+  },
+  {
+    "id": "rivalSurvivor",
+    "text": "Rival/Survivor",
     "required": false
   }
 ]

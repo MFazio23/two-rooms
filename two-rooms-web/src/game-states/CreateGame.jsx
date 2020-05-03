@@ -6,9 +6,7 @@ import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import Button from "@material-ui/core/Button";
 import gameRoles from "../gameRoles.json";
-import Switch from "@material-ui/core/Switch";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Grid from "@material-ui/core/Grid";
+import RulesGrid from "../components/RulesGrid";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -46,27 +44,12 @@ export default function CreateGame(props) {
         console.log("Create a game", gameInfo);
     };
 
-    const roleItem = (role) => {
-        const isLong = role.text.length > 10;
-        return (
-            <Grid item key={role.id} xs={isLong ? 12 : 6} md={isLong ? 6 : 3}>
-                <FormControlLabel
-                    control={
-                        <Switch checked={gameInfo[role.id]} onChange={handleSwitchChange} name={role.id}/>}
-                    label={role.text}
-                />
-            </Grid>
-        );
-    };
-
     return (
         <div className={classes.container}>
             <Card className={classes.card}>
                 <CardHeader title="Two Rooms and a Boom" subheader="Create a Game"/>
                 <CardContent className={classes.roles}>
-                    <Grid container spacing={3}>
-                        {gameRoles.map(role => roleItem(role))}
-                    </Grid>
+                    <RulesGrid gameRoles={gameRoles} gameInfo={gameInfo} handleSwitchChange={handleSwitchChange} />
                 </CardContent>
                 <CardActions className={classes.createGameButtons}>
                     <Button variant="contained" size="large" color="secondary"
