@@ -18,7 +18,7 @@ export default function RulesGrid(props) {
                 <FormControlLabel
                     control={
                         <Switch color={role.required ? 'secondary' : 'primary'} checked={props.gameInfo[role.id]}
-                                name={role.id} />}
+                                name={role.id} onChange={role.required ? () => false : props.handleSwitchChange} />}
                     label={role.text}
                 />
             </Grid>

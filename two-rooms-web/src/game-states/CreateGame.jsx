@@ -41,7 +41,7 @@ export default function CreateGame(props) {
     }
 
     const createGame = () => {
-        console.log("Create a game", gameInfo);
+        console.log("Create a game", JSON.stringify(gameInfo));
     };
 
     return (

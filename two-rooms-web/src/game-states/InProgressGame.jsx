@@ -70,7 +70,7 @@ export default function InProgressGame(props) {
                     <CardContent className={classes.roles}>
                         <Typography>Round {props.roundInfo.roundNumber}</Typography>
                         {/*TODO: End should come from Firebase.*/}
-                        <RoundTimer endDateTime="2020-05-03T17:47:44.123"/>
+                        <RoundTimer endDateTime="2020-05-06T23:22:44.123"/>
                         <Typography>Swap {props.roundInfo.swapCount} {props.roundInfo.swapCount === 1 ? 'person' : 'people'}</Typography>
                     </CardContent>
                 </Card>

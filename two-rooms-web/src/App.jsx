@@ -54,7 +54,7 @@ function App() {
         isOwner: true
     };
 
-    const [flow, setFlow] = useState("ended");
+    const [flow, setFlow] = useState("create");
 
     const updateFlow = (flow) => setFlow(flow);
 
