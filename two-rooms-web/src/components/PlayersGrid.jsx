@@ -4,37 +4,26 @@ import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles(theme => ({
-
+    currentUser: {
+        fontWeight: 'bold'
+    }
 }));
 
-//TODO: Get this from Firebase
-const players = [
-    "Michael",
-    "Emily",
-    "Tim",
-    "Hazel",
-    "Ken",
-    "Pablo",
-    "Anna",
-    "Justin",
-    "Amanda",
-    "Craig"
-];
-
 export default function PlayersGrid(props) {
-
+    const classes = useStyles();
     const playerItem = (player) => {
-
-        return (<Grid item md={3} xs={6} key={player}>
-            <Typography variant="body1">{player}</Typography>
+        const isCurrentUser = props.currentUser.uid === player.uid;
+        return (<Grid item md={3} xs={6} key={player.uid}>
+            <Typography variant="body1" className={isCurrentUser ? classes.currentUser : ''}
+                        color={isCurrentUser ? 'secondary' : 'initial'}>{player.name}</Typography>
             {/* Color the roles for the given teams. */}
-            {props.showRole && <Typography variant="subtitle2">{player}</Typography>}
+            {props.showRole && <Typography variant="subtitle2">{player.name}</Typography>}
         </Grid>)
     };
 
-    return (
+    return props.currentPlayers ? (
         <Grid container spacing={3}>
-            {players.map(player => playerItem(player))}
+            {props.currentPlayers.map(player => playerItem(player))}
         </Grid>
-    )
+    ) : <div/>
 }

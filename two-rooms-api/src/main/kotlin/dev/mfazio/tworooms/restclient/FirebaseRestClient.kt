@@ -1,11 +1,13 @@
 package dev.mfazio.tworooms.restclient
 
 import com.github.kittinunf.fuel.core.FuelError
+import com.github.kittinunf.fuel.httpDelete
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 import com.github.salomonbrys.kotson.fromJson
 import com.google.auth.oauth2.AccessToken
+import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.auth.UserRecord
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -13,12 +15,23 @@ import dev.mfazio.tworooms.restclient.types.*
 import dev.mfazio.tworooms.types.GameStatus
 import dev.mfazio.tworooms.types.TwoRoomsGame
 import dev.mfazio.tworooms.types.TwoRoomsRole
+import java.util.*
 
-class FirebaseRestClient(collectionId: String, private val accessToken: AccessToken) {
+class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
+
+    private val scoped: GoogleCredentials = credentials.createScoped("https://www.googleapis.com/auth/datastore")
+    private var accessToken: AccessToken
+
+    init {
+        //TODO: How often do I need to do this?
+        this.accessToken = scoped.refreshAccessToken()
+    }
+
     private val baseAPIUrl =
         "https://firestore.googleapis.com/v1/projects/tworooms-66ba8/databases/(default)/documents/$collectionId"
 
     fun findGame(gameCode: String): FirebaseRestResponse<FirebaseDocument> {
+        checkAccessToken()
         val (request, response, result) = "$baseAPIUrl/$gameCode"
             .httpGet()
             .header("Authorization", "Bearer ${accessToken.tokenValue}")
@@ -32,6 +45,7 @@ class FirebaseRestClient(collectionId: String, private val accessToken: AccessTo
     }
 
     fun getPlayersForGame(gameCode: String): FirebaseRestResponse<List<FirebaseDocument>> {
+        checkAccessToken()
         val (request, response, result) = "$baseAPIUrl/$gameCode/players"
             .httpGet()
             .header("Authorization", "Bearer ${accessToken.tokenValue}")
@@ -46,6 +60,7 @@ class FirebaseRestClient(collectionId: String, private val accessToken: AccessTo
     }
 
     fun createGame(user: UserRecord, roles: List<TwoRoomsRole>): FirebaseRestResponse<String> {
+        checkAccessToken()
         //TODO: Wrap this in a transaction - https://cloud.google.com/firestore/docs/reference/rest/#rest-resource:-v1.projects.databases.documents
         var gameCode: String = ""
         do {
@@ -89,7 +104,27 @@ class FirebaseRestClient(collectionId: String, private val accessToken: AccessTo
         )
     }
 
+    fun joinGame(user: UserRecord, gameCode: String): FirebaseRestResponse<String?> {
+        checkAccessToken()
+        val existingGame = findGame(gameCode)
+
+        return if (existingGame.wasSuccessful()) {
+            val (result, fuelError) = addUserToGame(gameCode, user)
+
+            FirebaseRestResponse(
+                result,
+                fuelError
+            )
+        } else {
+            FirebaseRestResponse(
+                "Game not found",
+                existingGame.error
+            )
+        }
+    }
+
     fun addUserToGame(gameCode: String, user: UserRecord): Result<String, FuelError> {
+        checkAccessToken()
         val body = Gson().toJson(
             FirebaseDocument(
                 fields = mapOf(
@@ -106,6 +141,22 @@ class FirebaseRestClient(collectionId: String, private val accessToken: AccessTo
             .responseString()
 
         return result
+    }
+
+    fun removePlayer(gameCode: String, uid: String): Result<String, FuelError> {
+        checkAccessToken()
+        val (request, response, result) = "$baseAPIUrl/$gameCode/players/${uid}"
+            .httpDelete()
+            .header("Authorization", "Bearer ${accessToken.tokenValue}")
+            .responseString()
+
+        return result
+    }
+
+    private fun checkAccessToken() {
+        if(this.accessToken.expirationTime?.before(Date()) != false) {
+            this.accessToken = scoped.refreshAccessToken()
+        }
     }
 
     companion object {

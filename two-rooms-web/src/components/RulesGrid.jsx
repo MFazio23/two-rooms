@@ -3,6 +3,7 @@ import Grid from "@material-ui/core/Grid";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import {makeStyles} from "@material-ui/core/styles";
+import gameRoles from "../gameRoles.json";
 
 const useStyles = makeStyles(theme => ({
 
@@ -17,18 +18,18 @@ export default function RulesGrid(props) {
             <Grid item key={role.id} xs={isLong ? 12 : 6} md={isLong ? 6 : 3}>
                 <FormControlLabel
                     control={
-                        <Switch color={role.required ? 'secondary' : 'primary'} checked={props.gameInfo[role.id]}
-                                name={role.id} onChange={role.required ? () => false : props.handleSwitchChange} />}
+                        <Switch color={role.required ? 'secondary' : 'primary'} checked={role.required || props.currentGame.roles[role.id]}
+                                name={role.id} onChange={props.readOnly ? () => false : props.handleSwitchChange} />}
                     label={role.text}
                 />
             </Grid>
         );
     };
 
-    return (
+    return props.currentGame?.roles ? (
         <Grid container spacing={3}>
-            {props.gameRoles.map(role => roleItem(role))}
+            {gameRoles.map(role => roleItem(role))}
         </Grid>
-    )
+    ) : (<div />)
 
 }

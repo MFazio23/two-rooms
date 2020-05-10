@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import './App.css';
 import JoinGame from "./game-states/JoinGame";
 import {createMuiTheme, ThemeProvider} from '@material-ui/core/styles';
@@ -8,6 +8,10 @@ import UpcomingGame from "./game-states/UpcomingGame";
 import gameRoles from "./gameRoles.json";
 import InProgressGame from "./game-states/InProgressGame";
 import EndedGame from "./game-states/EndedGame";
+import {auth, db, logOut} from "./firebase"
+import Default from "./game-states/Default";
+import Spinner from "./components/Spinner";
+import "./spinner.css";
 
 const theme = createMuiTheme({
     palette: {
@@ -31,49 +35,138 @@ const theme = createMuiTheme({
     }
 });
 
-const getSelectedGameInfo = () => {
-    //TODO: Map the selected game roles with what's in here.
-
-    return Object.assign({}, ...gameRoles.map(role => ({[role.id]: role.required || role.text === 'Clown' || role.text === 'Angel/Demon'})));
-}
-
 function App() {
-    //TODO: Get the game ID from somewhere.
-    const currentGameId = "FAZTST";
-
-    const gameInfo = getSelectedGameInfo();
-
     //TODO: This comes from FB.
     const roundInfo = {
         roundNumber: 2,
         swapCount: 2
     };
 
-    //TODO: This will be a firebase user.
-    const currentUser = {
-        isOwner: true
-    };
+    const [currentGame, setCurrentGame] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
+    const [currentPlayers, setCurrentPlayers] = useState([]);
+    const [flow, setFlow] = useState(null);
 
-    const [flow, setFlow] = useState("create");
+    let currentGameListener = null;
+    let currentPlayersListener = null;
 
     const updateFlow = (flow) => setFlow(flow);
 
+    const setFlowFromStatus = (status) => {
+        switch (status) {
+            case "Created":
+                setFlow("upcoming");
+                break;
+            case "Started":
+                setFlow("inProgress");
+                break;
+            case "Ended":
+                setFlow("ended");
+                break;
+            default:
+                setFlow("join");
+                break;
+        }
+    }
+
+    useEffect(() => {
+        auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                await setCurrentUserRecord(user);
+            } else {
+                console.error("User not found");
+                if(!flow) setFlow("join");
+            }
+        })
+    })
+
+    const setCurrentUserRecord = async (firebaseUser) => {
+        if (firebaseUser && currentUser?.uid !== firebaseUser.uid) {
+
+            window.firebaseUser = firebaseUser;
+            setCurrentUser({
+                name: firebaseUser.displayName,
+                uid: firebaseUser.uid
+            });
+
+            await updateGameData(firebaseUser);
+        }
+    }
+
+    const updateGameData = async (firebaseUser) => {
+        try {
+            const tokenResult = await firebaseUser.getIdTokenResult();
+
+            if (tokenResult?.claims?.gameCode && tokenResult?.claims?.gameCode !== currentGame?.gameCode) {
+                if (currentGameListener) currentGameListener();
+
+                const gameDoc = db.collection(`games`).doc(tokenResult.claims.gameCode);
+                currentGameListener = gameDoc.onSnapshot(snapshot => {
+                    const data = snapshot.data()
+
+                    if (data) {
+                        const currentGameRoles =
+                            gameRoles.reduce((obj, role) => (obj[role.id] = data.roles.includes(role.id), obj), {});
+
+                        setCurrentGame({
+                            gameCode: data.gameCode,
+                            status: data.status,
+                            roles: currentGameRoles,
+                            owner: data.ownerUID
+                        });
+
+                        setFlowFromStatus(data.status);
+                    }
+                }, (error) => console.error("Error with current game listener", error))
+
+                if (currentPlayersListener) currentPlayersListener();
+                currentPlayersListener = gameDoc.collection("players").onSnapshot(snapshot => {
+                    setCurrentPlayers(snapshot.docs.map(doc => doc.data()).map(player => ({
+                        name: player.name,
+                        uid: player.uid
+                    })));
+                }, (error) => console.error("Error with current players listener", error))
+
+            } else {
+                console.error("No game code was found for the user.");
+            }
+        } catch (ex) {
+            console.error(ex);
+        }
+    };
+
+    const removeListenersAndLogOut = async () => {
+        if (currentGameListener) currentGameListener();
+        if (currentPlayersListener) currentPlayersListener();
+
+        setCurrentGame(null)
+        setCurrentUser(null)
+        setCurrentPlayers([]);
+        setFlow('join');
+
+        await logOut();
+    };
+
     let flowComponent = <JoinGame updateFlow={updateFlow}/>
 
-    if (flow === 'create') {
+    if (!flow) {
+        flowComponent = <Default/>
+    } else if (flow === 'create') {
         flowComponent = <CreateGame updateFlow={updateFlow}/>;
     } else if (flow === 'upcoming') {
         flowComponent =
-            <UpcomingGame currentUser={currentUser} updateFlow={updateFlow} gameRoles={gameRoles} gameInfo={gameInfo} gameId={currentGameId}/>;
+            <UpcomingGame updateFlow={updateFlow} currentUser={currentUser} currentGame={currentGame}
+                          currentPlayers={currentPlayers} logOut={removeListenersAndLogOut}/>;
     } else if (flow === 'inProgress') {
-        flowComponent = <InProgressGame updateFlow={updateFlow} gameId={currentGameId} roundInfo={roundInfo}/>
+        flowComponent = <InProgressGame updateFlow={updateFlow} currentGame={currentGame} roundInfo={roundInfo}/>
     } else if (flow === 'ended') {
-        flowComponent = <EndedGame currentUser={currentUser} updateFlow={updateFlow} gameId={currentGameId}/>
+        flowComponent = <EndedGame currentUser={currentUser} updateFlow={updateFlow} currentGame={currentGame}/>
     }
 
     return (
         <ThemeProvider theme={theme}>
             <div className="App">
+                <Spinner/>
                 {flowComponent}
             </div>
         </ThemeProvider>

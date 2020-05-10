@@ -48,30 +48,35 @@ export default function UpcomingGame(props) {
         <div className={classes.container}>
             <div className={classes.container}>
                 <Card className={classes.card}>
-                    <CardHeader title="Two Rooms and a Boom" subheader={`Upcoming Game: [${props.gameId}]`}/>
+                    <CardHeader title="Two Rooms and a Boom"
+                                subheader={`Upcoming Game: [${props.currentGame.gameCode}] (${props.currentGame.owner})`}/>
                     <CardContent className={classes.roles}>
-                        <RulesGrid gameInfo={props.gameInfo} gameRoles={props.gameRoles} readOnly={true}/>
+                        <RulesGrid currentGame={props.currentGame} readOnly={true}/>
                     </CardContent>
                 </Card>
 
                 <Card className={classes.card}>
                     <CardHeader subheader="Current Players"/>
                     <CardContent>
-                        <PlayersGrid/>
+                        <PlayersGrid currentUser={props.currentUser} currentPlayers={props.currentPlayers}/>
                     </CardContent>
                     <CardActions className={classes.leaveGameButtons}>
                         <Button variant="contained" size="large" classes={{root: classes.leaveGameButton}}
                                 onClick={() => setDialogOpen(true)}>
                             Leave This Game?
                         </Button>
-                        {props.currentUser.isOwner && <Button variant="contained" color="secondary" size="large" classes={{root: classes.leaveGameButton}}
-                                onClick={startGame}>
-                            Start Game
-                        </Button>}
+                        {
+                            (props.currentGame.owner === props.currentUser.uid) &&
+                            <Button variant="contained" color="secondary" size="large"
+                                    classes={{root: classes.leaveGameButton}}
+                                    onClick={startGame}>
+                                Start Game
+                            </Button>
+                        }
                     </CardActions>
                 </Card>
             </div>
-            <LeaveGameDialog open={dialogOpen} onClose={closeDialog} />
+            <LeaveGameDialog open={dialogOpen} onClose={closeDialog} logOut={props.logOut}/>
         </div>
     )
 }

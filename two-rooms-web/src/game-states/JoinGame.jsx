@@ -6,6 +6,9 @@ import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import {joinGame} from "../api"
+import CircularProgress from "@material-ui/core/CircularProgress";
+import clsx from "clsx";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -30,22 +33,58 @@ const useStyles = makeStyles(theme => ({
     joinGameButtons: {
         justifyContent: "space-around"
     },
-    clearFormButton: {},
-    joinGameButton: {}
+    wrapper: {
+        margin: theme.spacing(1),
+        position: 'relative',
+    },
+    buttonProgress: {
+        color: theme.palette.secondary.main,
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        marginTop: -12,
+        marginLeft: -12,
+    },
+    buttonSuccess: {
+        backgroundColor: theme.palette.secondary.main,
+        '&:hover': {
+            backgroundColor: theme.palette.secondary.dark,
+        },
+    },
 }));
 
 export default function JoinGame(props) {
     const classes = useStyles();
-    const [gameId, setGameId] = useState("")
+    const [gameCode, setGameCode] = useState("")
     const [playerName, setPlayerName] = useState("")
+    const [loading, setLoading] = useState(false)
+    const [success, setSuccess] = useState(false)
+
+    const joinGameButtonClassname = clsx({
+        [classes.buttonSuccess]: success,
+    });
 
     const clearForm = () => {
-        setGameId("")
+        setGameCode("")
         setPlayerName("")
     }
 
-    const joinGame = () => {
-        console.log(`Join game ${gameId} as player ${playerName}`)
+    const joinGameClicked = async () => {
+        //TODO: Form validation
+        if (gameCode && playerName) {
+
+            setLoading(true);
+            try {
+                const joinGameResult = await joinGame(gameCode, playerName);
+                setLoading(false);
+                setSuccess(true);
+
+                console.log(joinGameResult)
+            } catch(e) {
+                console.error(e);
+                setSuccess(false);
+            }
+        }
     }
 
     return (
@@ -75,8 +114,8 @@ export default function JoinGame(props) {
                                 maxLength="3"
                                 label="Game ID"
                                 variant="outlined"
-                                value={gameId}
-                                onChange={e => setGameId(e.target.value)}
+                                value={gameCode}
+                                onChange={e => setGameCode(e.target.value)}
                             />
                         </div>
                         <div>
@@ -106,16 +145,19 @@ export default function JoinGame(props) {
                             onClick={clearForm}>
                         Clear Form
                     </Button>
-                    <Button variant="contained" size="large" color="primary" className={classes.joinGameButton}
-                            onClick={joinGame}>
-                        Join Game
-                    </Button>
+                    <div className={classes.wrapper}>
+                        <Button variant="contained" size="large" color="primary" className={classes.joinGameButton}
+                                onClick={joinGameClicked} disabled={loading}>
+                            Join Game
+                        </Button>
+                        {loading && <CircularProgress size={24} className={classes.buttonProgress}/>}
+                    </div>
                 </CardActions>
             </Card>
             <Card className={classes.card}>
                 <CardHeader subheader="Want to create your own game?"/>
                 <CardContent>
-                    <Button variant="contained" size="large" color="secondary"
+                    <Button variant="contained" size="large" color="secondary" className={joinGameButtonClassname}
                             onClick={() => props.updateFlow('create')}>
                         Create Game
                     </Button>

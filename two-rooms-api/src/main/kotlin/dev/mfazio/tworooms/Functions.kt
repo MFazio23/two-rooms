@@ -8,11 +8,37 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import dev.mfazio.tworooms.types.TwoRoomsRole
 import dev.mfazio.tworooms.types.api.CreateGameAPIRequest
+import dev.mfazio.tworooms.types.api.JoinGameAPIRequest
 import java.util.*
 
 class Functions {
     private val gson = Gson()
 
+    @FunctionName("findGame")
+    fun findGame(
+        @HttpTrigger(
+            name = "findGame",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS
+        ) request: HttpRequestMessage<String?>,
+        context: ExecutionContext
+    ): HttpResponseMessage? =
+        runFun(request, context) {
+            val gameCode = request.queryParameters["gameCode"]
+                ?: return@runFun request.badRequest("The 'gameCode' query string parameter is required.")
+
+            val response = FirebaseHandler.findFullGame(gameCode)
+
+            return@runFun if(response.error == null) {
+                request.respond(
+                    HttpStatus.OK,
+                    null,
+                    response.data
+                )
+            } else {
+                request.badRequest(response.error)
+            }
+        }
     @FunctionName("createGame")
     fun createGame(
         @HttpTrigger(
@@ -24,7 +50,7 @@ class Functions {
     ): HttpResponseMessage? =
         runFun(request, context) {
             val requestBody = request.body
-                ?: return@runFun request.badRequest("The roles for a new game are required.")
+                ?: return@runFun request.badRequest("The entered body is empty.")
 
             val createGameAPIRequest = gson.fromJson<CreateGameAPIRequest>(requestBody)
 
@@ -54,10 +80,25 @@ class Functions {
         context: ExecutionContext
     ): HttpResponseMessage? =
         runFun(request, context) {
-            val gameCode = request.queryParameters["gameCode"]
-                ?: return@runFun request.badRequest("The 'gameCode' query string parameter is required.")
+            val requestBody = request.body
+                ?: return@runFun request.badRequest("The entered body is empty.")
 
-            return@runFun request.respond(HttpStatus.OK, "Entered game code is [${gameCode}].")
+            val joinGameAPIRequest = gson.fromJson<JoinGameAPIRequest>(requestBody)
+
+            val response = FirebaseHandler.joinGame(
+                joinGameAPIRequest.gameCode,
+                joinGameAPIRequest.name
+            )
+
+            return@runFun if(response.error == null) {
+                request.respond(
+                    HttpStatus.OK,
+                    null,
+                    response.data
+                )
+            } else {
+                request.badRequest(response.error)
+            }
         }
 
     @FunctionName("startGame")

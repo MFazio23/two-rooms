@@ -32,16 +32,21 @@ const useStyles = makeStyles(theme => ({
 export default function CreateGame(props) {
     const classes = useStyles();
 
-    const [gameInfo, setGameInfo] = useState(
-        Object.assign({}, ...gameRoles.map(role => ({[role.id]: role.required})))
+    const [currentGame, setCurrentGame] = useState(
+        Object.assign({
+            roles: gameRoles.reduce((obj, role) => (obj[role.id] = role.required, obj), {})
+        })
     );
 
     const handleSwitchChange = (event) => {
-        setGameInfo({...gameInfo, [event.target.name]: event.target.checked})
+        const newRoles = Object.assign(currentGame?.roles || {}, {[event.target.name]: event.target.checked});
+        setCurrentGame({
+            roles: newRoles
+        })
     }
 
     const createGame = () => {
-        console.log("Create a game", JSON.stringify(gameInfo));
+        console.log("Create a game", JSON.stringify(currentGame));
     };
 
     return (
@@ -49,7 +54,7 @@ export default function CreateGame(props) {
             <Card className={classes.card}>
                 <CardHeader title="Two Rooms and a Boom" subheader="Create a Game"/>
                 <CardContent className={classes.roles}>
-                    <RulesGrid gameRoles={gameRoles} gameInfo={gameInfo} handleSwitchChange={handleSwitchChange} />
+                    <RulesGrid currentGame={currentGame} handleSwitchChange={handleSwitchChange} />
                 </CardContent>
                 <CardActions className={classes.createGameButtons}>
                     <Button variant="contained" size="large" color="secondary"

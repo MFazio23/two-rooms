@@ -1,6 +1,6 @@
 [
   {
-    "id": "president",
+    "id": "President",
     "text": "President",
     "team": "blue",
     "required": true,
@@ -8,7 +8,7 @@
     "description": ""
   },
   {
-    "id": "bomber",
+    "id": "Bomber",
     "text": "Bomber",
     "team": "red",
     "required": true,
@@ -16,7 +16,7 @@
     "description": ""
   },
   {
-    "id": "blue",
+    "id": "BlueTeam",
     "text": "Blue Team",
     "team": "blue",
     "required": true,
@@ -24,7 +24,7 @@
     "description": ""
   },
   {
-    "id": "red",
+    "id": "RedTeam",
     "text": "Red Team",
     "team": "red",
     "required": true,
@@ -32,7 +32,7 @@
     "description": ""
   },
   {
-    "id": "gambler",
+    "id": "Gambler",
     "text": "Gambler",
     "team": "gray",
     "required": true,
@@ -40,56 +40,56 @@
     "description": ""
   },
   {
-    "id": "blind",
+    "id": "Blind",
     "text": "Blind",
     "required": false,
     "shortDescription": "Keep your eyes closed",
     "description": ""
   },
   {
-    "id": "clown",
+    "id": "Clown",
     "text": "Clown",
     "required": false,
     "shortDescription": "Smile... always",
     "description": ""
   },
   {
-    "id": "shyGuy",
+    "id": "ShyGuy",
     "text": "Shy Guy",
     "required": false,
     "shortDescription": "",
     "description": ""
   },
   {
-    "id": "mime",
+    "id": "Mime",
     "text": "Mime",
     "required": false,
     "shortDescription": "Never speak",
     "description": ""
   },
   {
-    "id": "angel",
+    "id": "Angel",
     "text": "Angel",
     "required": false,
     "shortDescription": "Tell the truth",
     "description": ""
   },
   {
-    "id": "demon",
+    "id": "Demon",
     "text": "Demon",
     "required": false,
     "shortDescription": "Lie",
     "description": ""
   },
   {
-    "id": "rival",
+    "id": "Rival",
     "text": "Rival",
     "required": false,
     "shortDescription": "",
     "description": ""
   },
   {
-    "id": "survivor",
+    "id": "Survivor",
     "text": "Survivor",
     "required": false,
     "shortDescription": "",

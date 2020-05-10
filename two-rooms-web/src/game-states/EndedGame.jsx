@@ -74,7 +74,7 @@ export default function EndedGame(props) {
                             <Typography className={classes.winningTeamLabel} variant="h4"
                                         component="span">{winningTeam || "???"}</Typography>
                         </div>
-                        {props.currentUser.isOwner &&
+                        {(props.currentUser.uid === props.currentGame.owner) &&
                         <Button color="primary" size="large" variant="contained" onClick={() => setDialogOpen(true)}>
                             Pick Winners
                         </Button>}
