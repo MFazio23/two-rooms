@@ -9,6 +9,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import dev.mfazio.tworooms.types.TwoRoomsRole
 import dev.mfazio.tworooms.types.api.CreateGameAPIRequest
 import dev.mfazio.tworooms.types.api.JoinGameAPIRequest
+import dev.mfazio.tworooms.types.api.RemovePlayerAPIRequest
 import java.util.*
 
 class Functions {
@@ -88,6 +89,38 @@ class Functions {
             val response = FirebaseHandler.joinGame(
                 joinGameAPIRequest.gameCode,
                 joinGameAPIRequest.name
+            )
+
+            return@runFun if(response.error == null) {
+                request.respond(
+                    HttpStatus.OK,
+                    null,
+                    response.data
+                )
+            } else {
+                request.badRequest(response.error)
+            }
+        }
+
+    @FunctionName("removePlayer")
+    fun removePlayer(
+        @HttpTrigger(
+            name = "removePlayer",
+            methods = [HttpMethod.POST, HttpMethod.PUT],
+            authLevel = AuthorizationLevel.ANONYMOUS
+        ) request: HttpRequestMessage<String?>,
+        context: ExecutionContext
+    ): HttpResponseMessage? =
+        runFun(request, context) {
+            val requestBody = request.body
+                ?: return@runFun request.badRequest("The entered body is empty.")
+
+            val removePlayerAPIRequest = gson.fromJson<RemovePlayerAPIRequest>(requestBody)
+
+            val response = FirebaseHandler.removePlayer(
+                removePlayerAPIRequest.gameCode,
+                removePlayerAPIRequest.uid,
+                removePlayerAPIRequest.token
             )
 
             return@runFun if(response.error == null) {

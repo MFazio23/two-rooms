@@ -82,7 +82,6 @@ function App() {
 
     const setCurrentUserRecord = async (firebaseUser) => {
         if (firebaseUser && currentUser?.uid !== firebaseUser.uid) {
-
             window.firebaseUser = firebaseUser;
             setCurrentUser({
                 name: firebaseUser.displayName,
@@ -139,18 +138,18 @@ function App() {
         if (currentGameListener) currentGameListener();
         if (currentPlayersListener) currentPlayersListener();
 
+        await logOut();
+
         setCurrentGame(null)
         setCurrentUser(null)
         setCurrentPlayers([]);
         setFlow('join');
-
-        await logOut();
     };
 
     let flowComponent = <JoinGame updateFlow={updateFlow}/>
 
     if (!flow) {
-        flowComponent = <Default/>
+        flowComponent = <Default removeListenersAndLogOut={removeListenersAndLogOut}/>
     } else if (flow === 'create') {
         flowComponent = <CreateGame updateFlow={updateFlow}/>;
     } else if (flow === 'upcoming') {
@@ -166,7 +165,6 @@ function App() {
     return (
         <ThemeProvider theme={theme}>
             <div className="App">
-                <Spinner/>
                 {flowComponent}
             </div>
         </ThemeProvider>

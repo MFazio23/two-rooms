@@ -8,6 +8,7 @@ import Button from "@material-ui/core/Button";
 import {makeStyles} from "@material-ui/core/styles";
 import Icon from "@mdi/react";
 import {mdiBomb} from "@mdi/js";
+import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -29,13 +30,21 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function Default() {
+export default function Default(props) {
     const classes = useStyles();
 
     return (
         <div className={classes.container}>
             <Card className={classes.card}>
                 <CardHeader title="Two Rooms and a Boom"/>
+                <CardContent>
+                    <Typography>
+                        Something will go here at some point.
+                    </Typography>
+                </CardContent>
+                <CardActions>
+                    <Button onClick={props.removeListenersAndLogOut}>Sign Out</Button>
+                </CardActions>
             </Card>
         </div>
     );

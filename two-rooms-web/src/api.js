@@ -36,10 +36,11 @@ export async function createGame(name, roles) {
     }
 }
 
-export async function removeFromGame(uid) {
+export async function removePlayer(gameCode, uid) {
     try {
         const token = await auth().currentUser.getIdToken();
-        const result = await axios.post(`${baseURL}removeFromGame`, {
+        const result = await axios.post(`${baseURL}removePlayer`, {
+            gameCode: gameCode,
             uid: uid || auth().currentUser.uid,
             token: token
         })

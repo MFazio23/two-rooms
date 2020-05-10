@@ -26,12 +26,16 @@ const useStyles = makeStyles(theme => ({
         fontSize: 24,
         margin: 5
     },
-    joinGameInput: {
+    joinGameCodeInput: {
         fontSize: 54,
         textTransform: "uppercase"
     },
+    joinGameNameInput: {
+        fontSize: 54
+    },
     joinGameButtons: {
-        justifyContent: "space-around"
+        justifyContent: "space-around",
+        flexDirection: "row-reverse"
     },
     wrapper: {
         margin: theme.spacing(1),
@@ -53,10 +57,12 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
+const twoRoomsPlayerName = "twoRoomsPlayerName";
+
 export default function JoinGame(props) {
     const classes = useStyles();
     const [gameCode, setGameCode] = useState("")
-    const [playerName, setPlayerName] = useState("")
+    const [playerName, setPlayerName] = useState(localStorage.getItem(twoRoomsPlayerName) || "");
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
 
@@ -67,20 +73,19 @@ export default function JoinGame(props) {
     const clearForm = () => {
         setGameCode("")
         setPlayerName("")
+        localStorage.setItem(twoRoomsPlayerName, "");
     }
 
     const joinGameClicked = async () => {
         //TODO: Form validation
         if (gameCode && playerName) {
-
+            localStorage.setItem(twoRoomsPlayerName, playerName);
             setLoading(true);
             try {
                 const joinGameResult = await joinGame(gameCode, playerName);
                 setLoading(false);
                 setSuccess(true);
-
-                console.log(joinGameResult)
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
                 setSuccess(false);
             }
@@ -89,17 +94,17 @@ export default function JoinGame(props) {
 
     return (
         <div className={classes.container}>
-            <Card className={classes.card}>
-                <CardHeader
-                    title="Two Rooms and a Boom"
-                    subheader="Join a Game"
-                />
-                <CardContent>
-                    <form>
+            <form>
+                <Card className={classes.card}>
+                    <CardHeader
+                        title="Two Rooms and a Boom"
+                        subheader="Join a Game"
+                    />
+                    <CardContent>
                         <div>
                             <TextField
                                 className={classes.joinGameField}
-                                id="gameId"
+                                id="gameCode"
                                 inputProps={{
                                     maxLength: 6,
                                     autoComplete: "off",
@@ -108,11 +113,10 @@ export default function JoinGame(props) {
                                 }}
                                 InputProps={{
                                     classes: {
-                                        input: classes.joinGameInput
+                                        input: classes.joinGameCodeInput
                                     }
                                 }}
-                                maxLength="3"
-                                label="Game ID"
+                                label="Game Code"
                                 variant="outlined"
                                 value={gameCode}
                                 onChange={e => setGameCode(e.target.value)}
@@ -128,7 +132,7 @@ export default function JoinGame(props) {
                                 }}
                                 InputProps={{
                                     classes: {
-                                        input: classes.joinGameInput
+                                        input: classes.joinGameNameInput
                                     }
                                 }}
                                 name="playerName"
@@ -138,26 +142,26 @@ export default function JoinGame(props) {
                                 onChange={e => setPlayerName(e.target.value)}
                             />
                         </div>
-                    </form>
-                </CardContent>
-                <CardActions className={classes.joinGameButtons}>
-                    <Button variant="contained" size="large" color="default" className={classes.clearFormButton}
-                            onClick={clearForm}>
-                        Clear Form
-                    </Button>
-                    <div className={classes.wrapper}>
-                        <Button variant="contained" size="large" color="primary" className={classes.joinGameButton}
-                                onClick={joinGameClicked} disabled={loading}>
-                            Join Game
+                    </CardContent>
+                    <CardActions className={classes.joinGameButtons}>
+                        <div className={classes.wrapper}>
+                            <Button variant="contained" type="submit" size="large" color="primary"
+                                    className={joinGameButtonClassname} onClick={joinGameClicked} disabled={loading}>
+                                Join Game
+                            </Button>
+                            {loading && <CircularProgress size={24} className={classes.buttonProgress}/>}
+                        </div>
+                        <Button variant="contained" size="large" color="default"
+                                onClick={clearForm}>
+                            Clear Form
                         </Button>
-                        {loading && <CircularProgress size={24} className={classes.buttonProgress}/>}
-                    </div>
-                </CardActions>
-            </Card>
+                    </CardActions>
+                </Card>
+            </form>
             <Card className={classes.card}>
                 <CardHeader subheader="Want to create your own game?"/>
                 <CardContent>
-                    <Button variant="contained" size="large" color="secondary" className={joinGameButtonClassname}
+                    <Button variant="contained" size="large" color="secondary"
                             onClick={() => props.updateFlow('create')}>
                         Create Game
                     </Button>

@@ -44,7 +44,7 @@ export default function UpcomingGame(props) {
 
     const closeDialog = () => setDialogOpen(false)
 
-    return (
+    return props.currentGame ? (
         <div className={classes.container}>
             <div className={classes.container}>
                 <Card className={classes.card}>
@@ -76,7 +76,8 @@ export default function UpcomingGame(props) {
                     </CardActions>
                 </Card>
             </div>
-            <LeaveGameDialog open={dialogOpen} onClose={closeDialog} logOut={props.logOut}/>
+            <LeaveGameDialog open={dialogOpen} onClose={closeDialog} logOut={props.logOut}
+                             currentGame={props.currentGame}/>
         </div>
-    )
+    ) : <div />
 }

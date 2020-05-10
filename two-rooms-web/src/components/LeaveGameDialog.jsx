@@ -7,7 +7,7 @@ import CardActions from "@material-ui/core/CardActions";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import {makeStyles} from "@material-ui/core/styles";
-import {removeFromGame} from "../api"
+import {removePlayer} from "../api"
 
 const useStyles = makeStyles(theme => ({
     leaveGameDialog: {
@@ -25,9 +25,9 @@ export default function LeaveGameDialog(props) {
     const signOutOfGame = async () => {
         props.onClose();
 
-        await removeFromGame();
+        await removePlayer(props.currentGame.gameCode);
 
-        //await props.logOut();
+        await props.logOut();
     }
 
     return (

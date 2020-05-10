@@ -141,19 +141,5 @@ object FirebaseHandler {
 }
 
 fun main() {
-    /*val response = FirebaseHandler.createGame("Michael", TwoRoomsRole.values().filter { it != TwoRoomsRole.Rival })
 
-    println(response)*/
-/*
-    val response = FirebaseHandler.joinGame("VFUEPH", "New Player #2")
-
-    println(response)*/
-
-    val response = FirebaseHandler.removePlayer(
-        "VFUEPH",
-        "2zoxPWBhVbbrFv98Y7e5GPZRvRy1",
-        "eyJhbGciOiJSUzI1NiIsImtpZCI6ImZjMmM4YmIyNmE3OGM0M2JkODYzNzA1YjNkNzkyMWI0ZTY0MjVkNTQiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiUG9zdG1hbi1GYXoiLCJ1c2VyVHlwZSI6IlR3b1Jvb21zR2FtZU93bmVyIiwiZ2FtZUNvZGUiOiJVT1JOWVEiLCJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdHdvcm9vbXMtNjZiYTgiLCJhdWQiOiJ0d29yb29tcy02NmJhOCIsImF1dGhfdGltZSI6MTU4ODk4MTUzNiwidXNlcl9pZCI6Ild6RGtzdUlxejFoSHV3bXpHYlAzUkh2UUVMaDEiLCJzdWIiOiJXekRrc3VJcXoxaEh1d216R2JQM1JIdlFFTGgxIiwiaWF0IjoxNTg4OTkxNDM2LCJleHAiOjE1ODg5OTUwMzYsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnt9LCJzaWduX2luX3Byb3ZpZGVyIjoiY3VzdG9tIn19.A4_VYOxoeE1tUB2-xPhwVjxAqzbCbp4vm4lxN5hhINCMA-KgVQ2YFfG6tu1Wf1tTjJBHN5sqTAzS4KxnL5f4lTtz66i5Fj-d4hjY7Vngl8cOGeUEUKvFXQfIE0omlDvReveOuB4bGRn23HdE4RTIBslODPJ0YfLE8cux0oUk2D4h4neEQP0NtzsxD4BF3yjexfBQRf9XFpz3YHrR0ipvEerhIEIdpLBiniyzwK8d-QbUduZsXQ3EC5gnK3mZZZU0EVudMDuyIHLINJ_rZ3UT-i9R-usCvRxDx04IuWGoMonnBsuy7FUjFOYY-5UPd7FUcWMfiE8BMUWRXxeEbTpG3A"
-    )
-
-    println(response)
 }
