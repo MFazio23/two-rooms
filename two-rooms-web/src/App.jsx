@@ -10,8 +10,10 @@ import InProgressGame from "./game-states/InProgressGame";
 import EndedGame from "./game-states/EndedGame";
 import {auth, db, logOut} from "./firebase"
 import Default from "./game-states/Default";
-import Spinner from "./components/Spinner";
 import "./spinner.css";
+import Snackbar from "@material-ui/core/Snackbar";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from '@material-ui/icons/Close';
 
 const theme = createMuiTheme({
     palette: {
@@ -46,6 +48,8 @@ function App() {
     const [currentUser, setCurrentUser] = useState(null);
     const [currentPlayers, setCurrentPlayers] = useState([]);
     const [flow, setFlow] = useState(null);
+    const [showSnackbar, setShowSnackbar] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
 
     let currentGameListener = null;
     let currentPlayersListener = null;
@@ -75,7 +79,7 @@ function App() {
                 await setCurrentUserRecord(user);
             } else {
                 console.error("User not found");
-                if(!flow) setFlow("join");
+                if (!flow) setFlow("join");
             }
         })
     })
@@ -144,7 +148,18 @@ function App() {
         setCurrentUser(null)
         setCurrentPlayers([]);
         setFlow('join');
+
+        displaySnackbar("You have been removed from your game.");
     };
+
+    const handleSnackbarClose = () => {
+        setShowSnackbar(false);
+    }
+
+    const displaySnackbar = (message) => {
+        setSnackbarMessage(message)
+        setShowSnackbar(true)
+    }
 
     let flowComponent = <JoinGame updateFlow={updateFlow}/>
 
@@ -155,7 +170,8 @@ function App() {
     } else if (flow === 'upcoming') {
         flowComponent =
             <UpcomingGame updateFlow={updateFlow} currentUser={currentUser} currentGame={currentGame}
-                          currentPlayers={currentPlayers} logOut={removeListenersAndLogOut}/>;
+                          currentPlayers={currentPlayers} logOut={removeListenersAndLogOut}
+                          displaySnackbar={displaySnackbar}/>;
     } else if (flow === 'inProgress') {
         flowComponent = <InProgressGame updateFlow={updateFlow} currentGame={currentGame} roundInfo={roundInfo}/>
     } else if (flow === 'ended') {
@@ -166,6 +182,22 @@ function App() {
         <ThemeProvider theme={theme}>
             <div className="App">
                 {flowComponent}
+                <Snackbar
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left'
+                    }}
+                    open={showSnackbar}
+                    autoHideDuration={5000}
+                    onClose={handleSnackbarClose}
+                    message={snackbarMessage}
+                    action={
+                        <React.Fragment>
+                            <IconButton size="small" aria-label="close" color="inherit" onClick={handleSnackbarClose}>
+                                <CloseIcon fontSize="small"/>
+                            </IconButton>
+                        </React.Fragment>
+                    }/>
             </div>
         </ThemeProvider>
     );

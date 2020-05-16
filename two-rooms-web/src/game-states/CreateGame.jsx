@@ -7,6 +7,8 @@ import CardActions from "@material-ui/core/CardActions";
 import Button from "@material-ui/core/Button";
 import gameRoles from "../gameRoles.json";
 import RulesGrid from "../components/RulesGrid";
+import {createGame} from "../api";
+import GameEntryField from "../components/GameEntryField";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -28,10 +30,12 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
+const twoRoomsPlayerName = "twoRoomsPlayerName";
 
 export default function CreateGame(props) {
     const classes = useStyles();
 
+    const [playerName, setPlayerName] = useState(localStorage.getItem(twoRoomsPlayerName) || "");
     const [currentGame, setCurrentGame] = useState(
         Object.assign({
             roles: gameRoles.reduce((obj, role) => (obj[role.id] = role.required, obj), {})
@@ -45,8 +49,11 @@ export default function CreateGame(props) {
         })
     }
 
-    const createGame = () => {
-        console.log("Create a game", JSON.stringify(currentGame));
+    const createGameClicked = async () => {
+        if (playerName && currentGame.roles) {
+            localStorage.setItem(twoRoomsPlayerName, playerName);
+            await createGame(playerName, currentGame.roles);
+        }
     };
 
     return (
@@ -54,11 +61,23 @@ export default function CreateGame(props) {
             <Card className={classes.card}>
                 <CardHeader title="Two Rooms and a Boom" subheader="Create a Game"/>
                 <CardContent className={classes.roles}>
-                    <RulesGrid currentGame={currentGame} handleSwitchChange={handleSwitchChange} />
+                    <GameEntryField
+                        id="playerName"
+                        inputProps={{
+                            autoComplete: "off",
+                            required: true
+                        }}
+                        name="playerName"
+                        label="Player Name"
+                        variant="outlined"
+                        value={playerName}
+                        onChange={e => setPlayerName(e.target.value)}
+                    />
+                    <RulesGrid currentGame={currentGame} handleSwitchChange={handleSwitchChange}/>
                 </CardContent>
                 <CardActions className={classes.createGameButtons}>
                     <Button variant="contained" size="large" color="secondary"
-                            onClick={createGame}>
+                            onClick={createGameClicked}>
                         Create Game
                     </Button>
                 </CardActions>

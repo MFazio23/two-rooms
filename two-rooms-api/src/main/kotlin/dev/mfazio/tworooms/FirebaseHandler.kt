@@ -1,6 +1,5 @@
 package dev.mfazio.tworooms
 
-import com.google.auth.oauth2.AccessToken
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
@@ -13,7 +12,6 @@ import dev.mfazio.tworooms.types.FirebaseResponse
 import dev.mfazio.tworooms.types.TwoRoomsGame
 import dev.mfazio.tworooms.types.TwoRoomsRole
 import dev.mfazio.tworooms.types.results.JoinGameResult
-import kotlin.random.Random
 
 object FirebaseHandler {
     private const val claimGameCode = "gameCode"
@@ -83,9 +81,7 @@ object FirebaseHandler {
         )
     }
 
-    fun removePlayer(gameCode: String, uid: String, token: String): FirebaseResponse<String> {
-        //TODO: Validate the user
-
+    fun removePlayer(gameCode: String, uidToRemove: String, token: String): FirebaseResponse<String> {
         if (token.isBlank()) {
             return FirebaseResponse(null, "Access token is required.")
         }
@@ -101,15 +97,56 @@ object FirebaseHandler {
             tokenClaims == null -> "The entered token cannot be verified."
             !tokenClaims.containsKey("userType") ||
                 !tokenClaims.containsKey("user_id") -> "The entered token is invalid."
-            tokenClaims["user_id"] == tokenUID && tokenClaims["userType"] == gameOwnerUserType ->
+            uidToRemove == tokenUID && tokenClaims["userType"] == gameOwnerUserType ->
                 "Game creators cannot be removed from their own game."
-            tokenClaims["user_id"] != tokenUID && tokenClaims["userType"] == playerUserType ->
+            uidToRemove != tokenUID && tokenClaims["userType"] == playerUserType ->
                 "Only game owners can remove other players."
             else -> null
         }
 
         if (errorMessage == null) {
-            val (result, fuelError) = this.restClient.removePlayer(gameCode, uid)
+            val (result, fuelError) = this.restClient.removePlayer(gameCode, uidToRemove)
+
+            return FirebaseResponse(
+                result,
+                fuelError?.message
+            )
+        }
+
+        return FirebaseResponse(null, errorMessage)
+    }
+
+    fun startGame(gameCode: String, token: String): FirebaseResponse<String> {
+        if (token.isBlank()) {
+            return FirebaseResponse(null, "Access token is required.")
+        }
+
+        val currentGameResponse = this.findFullGame(gameCode)
+
+        if (currentGameResponse.error != null || currentGameResponse.data == null) {
+            return FirebaseResponse(null, currentGameResponse.error)
+        }
+
+        val currentGame: TwoRoomsGame = currentGameResponse.data
+
+        val firebaseToken: FirebaseToken? = FirebaseAuth.getInstance().verifyIdToken(token)
+
+        val tokenUID = firebaseToken?.uid
+
+        val tokenClaims = firebaseToken?.claims
+
+        //TODO: This really hasn't be tested...
+        val errorMessage: String? = when {
+            tokenClaims == null -> "The entered token cannot be verified."
+            !tokenClaims.containsKey("userType") ||
+                !tokenClaims.containsKey("user_id") -> "The entered token is invalid."
+            tokenClaims["userType"] != gameOwnerUserType || tokenUID != currentGame.ownerUID ->
+                "Only game owners can start a game."
+            else -> null
+        }
+
+        if (errorMessage == null) {
+            val (result, fuelError) = this.restClient.startGame(currentGame)
 
             return FirebaseResponse(
                 result,

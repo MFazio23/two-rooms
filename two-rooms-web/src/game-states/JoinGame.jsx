@@ -9,6 +9,7 @@ import Button from "@material-ui/core/Button";
 import {joinGame} from "../api"
 import CircularProgress from "@material-ui/core/CircularProgress";
 import clsx from "clsx";
+import GameEntryField from "../components/GameEntryField";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -27,11 +28,7 @@ const useStyles = makeStyles(theme => ({
         margin: 5
     },
     joinGameCodeInput: {
-        fontSize: 54,
         textTransform: "uppercase"
-    },
-    joinGameNameInput: {
-        fontSize: 54
     },
     joinGameButtons: {
         justifyContent: "space-around",
@@ -102,8 +99,7 @@ export default function JoinGame(props) {
                     />
                     <CardContent>
                         <div>
-                            <TextField
-                                className={classes.joinGameField}
+                            <GameEntryField
                                 id="gameCode"
                                 inputProps={{
                                     maxLength: 6,
@@ -111,30 +107,20 @@ export default function JoinGame(props) {
                                     pattern: "[A-Za-z]{6}",
                                     required: true
                                 }}
-                                InputProps={{
-                                    classes: {
-                                        input: classes.joinGameCodeInput
-                                    }
-                                }}
+                                inputClasses={classes.joinGameCodeInput}
                                 label="Game Code"
-                                variant="outlined"
                                 value={gameCode}
                                 onChange={e => setGameCode(e.target.value)}
                             />
                         </div>
                         <div>
-                            <TextField
-                                className={classes.joinGameField}
+                            <GameEntryField
                                 id="playerName"
                                 inputProps={{
                                     autoComplete: "off",
                                     required: true
                                 }}
-                                InputProps={{
-                                    classes: {
-                                        input: classes.joinGameNameInput
-                                    }
-                                }}
+                                inputClasses={classes.joinGameNameInput}
                                 name="playerName"
                                 label="Player Name"
                                 variant="outlined"

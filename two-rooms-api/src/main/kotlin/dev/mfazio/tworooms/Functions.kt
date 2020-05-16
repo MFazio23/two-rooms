@@ -10,6 +10,7 @@ import dev.mfazio.tworooms.types.TwoRoomsRole
 import dev.mfazio.tworooms.types.api.CreateGameAPIRequest
 import dev.mfazio.tworooms.types.api.JoinGameAPIRequest
 import dev.mfazio.tworooms.types.api.RemovePlayerAPIRequest
+import dev.mfazio.tworooms.types.api.StartGameAPIRequest
 import java.util.*
 
 class Functions {
@@ -144,10 +145,25 @@ class Functions {
         context: ExecutionContext
     ): HttpResponseMessage? =
         runFun(request, context) {
-            val gameCode = request.queryParameters["gameCode"]
-                ?: return@runFun request.badRequest("The 'gameCode' query string parameter is required.")
+            val requestBody = request.body
+                ?: return@runFun request.badRequest("The entered body is empty.")
 
-            return@runFun request.respond(HttpStatus.OK, "Entered game code is [${gameCode}].")
+            val startGameAPIRequest = gson.fromJson<StartGameAPIRequest>(requestBody)
+
+            val response = FirebaseHandler.startGame(
+                startGameAPIRequest.gameCode,
+                startGameAPIRequest.token
+            )
+
+            return@runFun if(response.error == null) {
+                request.respond(
+                    HttpStatus.OK,
+                    null,
+                    response.data
+                )
+            } else {
+                request.badRequest(response.error)
+            }
         }
 
     @FunctionName("startRound")

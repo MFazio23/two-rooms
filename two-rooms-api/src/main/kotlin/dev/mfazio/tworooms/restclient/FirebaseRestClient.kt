@@ -4,6 +4,7 @@ import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.httpDelete
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
+import com.github.kittinunf.fuel.httpPut
 import com.github.kittinunf.result.Result
 import com.github.salomonbrys.kotson.fromJson
 import com.google.auth.oauth2.AccessToken
@@ -12,10 +13,9 @@ import com.google.firebase.auth.UserRecord
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dev.mfazio.tworooms.restclient.types.*
-import dev.mfazio.tworooms.types.GameStatus
-import dev.mfazio.tworooms.types.TwoRoomsGame
-import dev.mfazio.tworooms.types.TwoRoomsRole
+import dev.mfazio.tworooms.types.*
 import java.util.*
+import kotlin.math.floor
 
 class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
 
@@ -143,6 +143,8 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
         return result
     }
 
+    //TODO: Add function to add multiple random/generated users to a game for testing.
+
     fun removePlayer(gameCode: String, uid: String): Result<String, FuelError> {
         checkAccessToken()
         val (request, response, result) = "$baseAPIUrl/$gameCode/players/${uid}"
@@ -153,11 +155,78 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
         return result
     }
 
+    fun startGame(game: TwoRoomsGame): Result<String, FuelError> {
+        checkAccessToken()
+        val distributedPlayers = distributeTeams(game)
+
+        distributedPlayers.forEach { player ->
+            val body = Gson().toJson(
+                FirebaseDocument(
+                    fields = mapOf(
+                        "name" to StringValueObject(player.name),
+                        "uid" to StringValueObject(player.uid),
+                        "team" to StringValueObject(player.team?.name),
+                        "role" to StringValueObject(player.role?.name)
+                    )
+                )
+            )
+
+            val (request, response, result) =
+                "$baseAPIUrl/${game.gameCode}/players/${player.uid}"
+                    .httpPut()
+                    .body(body)
+                    .header("Authorization", "Bearer ${accessToken.tokenValue}")
+                    .responseString()
+
+            val (resultString, fuelError) = result
+
+            if(fuelError != null) {
+                return result
+            }
+        }
+
+        //TODO: Make this all a single transaction.
+        val (request, response, result) = "$baseAPIUrl/${game.gameCode}"
+            .httpPut()
+            .header("Authorization", "Bearer ${accessToken.tokenValue}")
+            .responseString()
+
+        return result
+    }
+
     private fun checkAccessToken() {
-        if(this.accessToken.expirationTime?.before(Date()) != false) {
+        if (this.accessToken.expirationTime?.before(Date()) != false) {
             this.accessToken = scoped.refreshAccessToken()
         }
     }
+
+    private fun distributeTeams(game: TwoRoomsGame): List<TwoRoomsPlayer> =
+        game.players.filterNotNull().shuffled().let { allPlayers ->
+            val gambler =
+                (if (allPlayers.count() % 2 != 0) allPlayers.first() else null)?.copy(
+                    team = TwoRoomsTeam.Gray,
+                    role = TwoRoomsRole.Gambler
+                )
+
+            val notRequiredRoles = game.roles.filter { !it.isRequired }
+
+            val updatedPlayers = allPlayers
+                .filter { it != gambler }
+                .mapIndexed { ind, player ->
+                    val roleInd = floor(ind / 2.0).toInt() - 1
+                    player.copy(
+                        team = if (ind % 2 == 0) TwoRoomsTeam.Blue else TwoRoomsTeam.Red,
+                        role = when {
+                            ind == 0 -> TwoRoomsRole.President
+                            ind == 1 -> TwoRoomsRole.Bomber
+                            roleInd < notRequiredRoles.count() -> notRequiredRoles[roleInd]
+                            else -> if (ind % 2 == 0) TwoRoomsRole.BlueTeam else TwoRoomsRole.RedTeam
+                        }
+                    )
+                }
+
+            (updatedPlayers + gambler).filterNotNull()
+        }
 
     companion object {
         private val firebaseDocumentGson = GsonBuilder()

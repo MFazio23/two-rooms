@@ -3,13 +3,13 @@ package dev.mfazio.tworooms.types
 import dev.mfazio.tworooms.restclient.types.ArrayValueObject
 import dev.mfazio.tworooms.restclient.types.StringValueObject
 
-enum class TwoRoomsRole(val requiredTeam: TwoRoomsTeam? = null) {
+enum class TwoRoomsRole(val isRequired: Boolean = false, val requiredTeam: TwoRoomsTeam? = null) {
     Unknown,
-    President(TwoRoomsTeam.Blue),
-    Bomber(TwoRoomsTeam.Red),
-    BlueTeam(TwoRoomsTeam.Blue),
-    RedTeam(TwoRoomsTeam.Red),
-    Gambler(TwoRoomsTeam.Gray),
+    President(true, TwoRoomsTeam.Blue),
+    Bomber(true, TwoRoomsTeam.Red),
+    BlueTeam(true, TwoRoomsTeam.Blue),
+    RedTeam(true, TwoRoomsTeam.Red),
+    Gambler(true, TwoRoomsTeam.Gray),
     Angel,
     Clown,
     Demon,

@@ -25,9 +25,9 @@ export default function LeaveGameDialog(props) {
     const signOutOfGame = async () => {
         props.onClose();
 
-        await removePlayer(props.currentGame.gameCode);
+        const removePlayerResult = await removePlayer(props.currentGame.gameCode);
 
-        await props.logOut();
+        await props.logOutIfValid(removePlayerResult);
     }
 
     return (

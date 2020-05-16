@@ -44,12 +44,20 @@ export default function UpcomingGame(props) {
 
     const closeDialog = () => setDialogOpen(false)
 
+    const logOutIfValid = (result) => {
+        if(result?.error) {
+            props.displaySnackbar(result.error);
+        } else {
+            props.logOut()
+        }
+    }
+
     return props.currentGame ? (
         <div className={classes.container}>
             <div className={classes.container}>
                 <Card className={classes.card}>
                     <CardHeader title="Two Rooms and a Boom"
-                                subheader={`Upcoming Game: [${props.currentGame.gameCode}] (${props.currentGame.owner})`}/>
+                                subheader={`Upcoming Game: [${props.currentGame.gameCode}]`}/>
                     <CardContent className={classes.roles}>
                         <RulesGrid currentGame={props.currentGame} readOnly={true}/>
                     </CardContent>
@@ -76,7 +84,7 @@ export default function UpcomingGame(props) {
                     </CardActions>
                 </Card>
             </div>
-            <LeaveGameDialog open={dialogOpen} onClose={closeDialog} logOut={props.logOut}
+            <LeaveGameDialog open={dialogOpen} onClose={closeDialog} logOutIfValid={logOutIfValid}
                              currentGame={props.currentGame}/>
         </div>
     ) : <div />
