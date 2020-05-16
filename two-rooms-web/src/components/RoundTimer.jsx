@@ -7,7 +7,7 @@ const timesUp = "Time's Up!";
 
 export default function RoundTimer(props) {
     const calculateTimeLeft = () => {
-        const endTime = DateTime.fromISO(props.endDateTime, { zone: 'utc' });
+        const endTime = DateTime.fromISO(props.endDateTime || "2020-04-10 12:35:00", { zone: 'utc' });
 
         const remaining = endTime.diff(DateTime.utc());
 

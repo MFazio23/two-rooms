@@ -50,33 +50,34 @@ const useStyles = makeStyles(theme => ({
 export default function InProgressGame(props) {
     const classes = useStyles();
 
-    const role = gameRoles.find(role => role.id === "president");
+    const currentPlayer = props.currentPlayers?.find(p => p.uid === props.currentUser.uid) || {};
+
+    const role = gameRoles?.find(role => role.id === currentPlayer.role) || {};
 
     const getTeamClass = (team) => {
         let teamClass = 'grayTeam';
 
-        if(team === 'blue') teamClass = 'blueTeam';
-        else if (team === 'red') teamClass = 'redTeam';
-        else if (team === 'green') teamClass = 'greenTeam';
+        if(team === 'Blue') teamClass = 'blueTeam';
+        else if (team === 'Red') teamClass = 'redTeam';
+        else if (team === 'Green') teamClass = 'greenTeam';
 
         return classes[teamClass];
     }
 
-    return (
+    return props.currentGame && (
         <div className={classes.container}>
             <div className={classes.container}>
                 <Card className={classes.card}>
-                    <CardHeader title="Two Rooms and a Boom" subheader={`Game in Progress: [${props.gameId}]`}/>
+                    <CardHeader title="Two Rooms and a Boom" subheader={`Game in Progress: [${props.currentGame.gameCode}]`}/>
                     <CardContent className={classes.roles}>
-                        <Typography>Round {props.roundInfo.roundNumber}</Typography>
-                        {/*TODO: End should come from Firebase.*/}
-                        <RoundTimer endDateTime="2020-05-06T23:22:44.123"/>
-                        <Typography>Swap {props.roundInfo.swapCount} {props.roundInfo.swapCount === 1 ? 'person' : 'people'}</Typography>
+                        <Typography>Round {props.currentGame.roundNumber}</Typography>
+                        <RoundTimer endDateTime={props.currentGame.roundEndTime}/>
+                        <Typography>Swap {props.currentGame.swapCount} {props.currentGame.swapCount === 1 ? 'person' : 'people'}</Typography>
                     </CardContent>
                 </Card>
 
-                <Card className={`${classes.card} ${getTeamClass(role.team)}`}>
-                    <CardHeader title={role.text} subheader={`${role.team} Team`}/>
+                <Card className={`${classes.card} ${getTeamClass(currentPlayer.team)}`}>
+                    <CardHeader title={role.text} subheader={`${currentPlayer.team} Team`}/>
                     <CardContent>
                         {role.shortDescription}
                     </CardContent>
@@ -84,5 +85,5 @@ export default function InProgressGame(props) {
                 </Card>
             </div>
         </div>
-    )
+    ) || <div/>
 }

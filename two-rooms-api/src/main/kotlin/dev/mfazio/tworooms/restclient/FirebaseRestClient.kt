@@ -1,10 +1,7 @@
 package dev.mfazio.tworooms.restclient
 
+import com.github.kittinunf.fuel.*
 import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.httpDelete
-import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.fuel.httpPost
-import com.github.kittinunf.fuel.httpPut
 import com.github.kittinunf.result.Result
 import com.github.salomonbrys.kotson.fromJson
 import com.google.auth.oauth2.AccessToken
@@ -16,6 +13,7 @@ import dev.mfazio.tworooms.restclient.types.*
 import dev.mfazio.tworooms.types.*
 import java.util.*
 import kotlin.math.floor
+import kotlin.random.Random
 
 class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
 
@@ -39,7 +37,7 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
         val (responseString, error) = result
 
         return FirebaseRestResponse(
-            if (responseString != null) firebaseDocumentGson.fromJson<FirebaseDocument>(responseString ?: "") else null,
+            if (responseString != null) firebaseDocumentGson.fromJson<FirebaseDocument>(responseString) else null,
             error
         )
     }
@@ -51,10 +49,10 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
             .header("Authorization", "Bearer ${accessToken.tokenValue}")
             .responseString()
         val (responseString, error) = result
-        val documentsList = firebaseDocumentGson.fromJson<Map<String, List<FirebaseDocument>>>(responseString ?: "")
+        val documentsList = firebaseDocumentGson.fromJson<FirebaseDocumentList>(responseString ?: "")
 
         return FirebaseRestResponse(
-            documentsList.values.first(),
+            documentsList.documents,
             error
         )
     }
@@ -123,18 +121,43 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
         }
     }
 
-    fun addUserToGame(gameCode: String, user: UserRecord): Result<String, FuelError> {
+    fun addUserToGame(gameCode: String, user: UserRecord): Result<String, FuelError> =
+        addUserToGame(gameCode, user.displayName, user.uid)
+
+    //TODO: Add function to add multiple random/generated users to a game for testing.
+
+    fun addMultipleRandomPlayers(gameCode: String, playerCount: Int? = null): Result<String, FuelError> {
+        val count = playerCount ?: Random.nextInt(4, 12)
+
+        val results = (1..count).map { _ ->
+                val name = ((65..90) + (97..122))
+                    .map { it.toChar().toString() }
+                    .shuffled()
+                    .take(Random.nextInt(4, 12))
+                    .joinToString("")
+
+                val result = addUserToGame(gameCode, name, UUID.randomUUID().toString())
+
+            if(result.component2() != null) return result
+
+            result
+        }
+
+        return results.last()
+    }
+
+    private fun addUserToGame(gameCode: String, name: String, uid: String): Result<String, FuelError> {
         checkAccessToken()
         val body = Gson().toJson(
             FirebaseDocument(
                 fields = mapOf(
-                    "name" to StringValueObject(user.displayName),
-                    "uid" to StringValueObject(user.uid)
+                    "name" to StringValueObject(name),
+                    "uid" to StringValueObject(uid)
                 )
             )
         )
 
-        val (request, response, result) = "$baseAPIUrl/$gameCode/players?documentId=${user.uid}"
+        val (request, response, result) = "$baseAPIUrl/$gameCode/players?documentId=${uid}"
             .httpPost()
             .header("Authorization", "Bearer ${accessToken.tokenValue}")
             .body(body)
@@ -142,8 +165,6 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
 
         return result
     }
-
-    //TODO: Add function to add multiple random/generated users to a game for testing.
 
     fun removePlayer(gameCode: String, uid: String): Result<String, FuelError> {
         checkAccessToken()
@@ -173,21 +194,26 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
 
             val (request, response, result) =
                 "$baseAPIUrl/${game.gameCode}/players/${player.uid}"
-                    .httpPut()
+                    .httpPatch()
                     .body(body)
                     .header("Authorization", "Bearer ${accessToken.tokenValue}")
                     .responseString()
 
             val (resultString, fuelError) = result
 
-            if(fuelError != null) {
+            if (fuelError != null) {
                 return result
             }
         }
 
         //TODO: Make this all a single transaction.
-        val (request, response, result) = "$baseAPIUrl/${game.gameCode}"
-            .httpPut()
+        val body = Gson().toJson(
+            FirebaseDocument(fields = mapOf("status" to StringValueObject(GameStatus.Started.name)))
+        )
+
+        val (request, response, result) = "$baseAPIUrl/${game.gameCode}?updateMask.fieldPaths=status"
+            .httpPatch()
+            .body(body)
             .header("Authorization", "Bearer ${accessToken.tokenValue}")
             .responseString()
 

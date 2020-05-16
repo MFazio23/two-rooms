@@ -81,6 +81,15 @@ object FirebaseHandler {
         )
     }
 
+    fun addRandomPlayers(gameCode: String, count: Int? = null): FirebaseResponse<String> {
+        val (result, fuelError) = this.restClient.addMultipleRandomPlayers(gameCode, count)
+
+        return FirebaseResponse(
+            result,
+            fuelError?.message
+        )
+    }
+
     fun removePlayer(gameCode: String, uidToRemove: String, token: String): FirebaseResponse<String> {
         if (token.isBlank()) {
             return FirebaseResponse(null, "Access token is required.")

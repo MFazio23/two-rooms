@@ -126,7 +126,9 @@ function App() {
                 currentPlayersListener = gameDoc.collection("players").onSnapshot(snapshot => {
                     setCurrentPlayers(snapshot.docs.map(doc => doc.data()).map(player => ({
                         name: player.name,
-                        uid: player.uid
+                        uid: player.uid,
+                        role: player.role,
+                        team: player.team
                     })));
                 }, (error) => console.error("Error with current players listener", error))
 
@@ -173,7 +175,8 @@ function App() {
                           currentPlayers={currentPlayers} logOut={removeListenersAndLogOut}
                           displaySnackbar={displaySnackbar}/>;
     } else if (flow === 'inProgress') {
-        flowComponent = <InProgressGame updateFlow={updateFlow} currentGame={currentGame} roundInfo={roundInfo}/>
+        flowComponent = <InProgressGame updateFlow={updateFlow} currentGame={currentGame} currentUser={currentUser}
+                                        currentPlayers={currentPlayers} roundInfo={roundInfo}/>
     } else if (flow === 'ended') {
         flowComponent = <EndedGame currentUser={currentUser} updateFlow={updateFlow} currentGame={currentGame}/>
     }

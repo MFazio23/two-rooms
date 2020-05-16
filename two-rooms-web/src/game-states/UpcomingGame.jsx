@@ -9,6 +9,7 @@ import Button from "@material-ui/core/Button";
 import red from "@material-ui/core/colors/red";
 import PlayersGrid from "../components/PlayersGrid";
 import LeaveGameDialog from "../components/LeaveGameDialog";
+import { startGame } from "../api";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -33,14 +34,14 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const startGame = () => {
-    //TODO: Fill this in.
-    console.log("This will start the game.");
-}
 
 export default function UpcomingGame(props) {
     const classes = useStyles();
     const [dialogOpen, setDialogOpen] = useState(false);
+
+    const startGameClicked = async () => {
+        await startGame(props.currentGame.gameCode);
+    }
 
     const closeDialog = () => setDialogOpen(false)
 
@@ -77,7 +78,7 @@ export default function UpcomingGame(props) {
                             (props.currentGame.owner === props.currentUser.uid) &&
                             <Button variant="contained" color="secondary" size="large"
                                     classes={{root: classes.leaveGameButton}}
-                                    onClick={startGame}>
+                                    onClick={startGameClicked}>
                                 Start Game
                             </Button>
                         }

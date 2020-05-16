@@ -36,6 +36,20 @@ export async function createGame(name, roles) {
     }
 }
 
+export async function startGame(gameCode) {
+    try {
+        const token = await auth().currentUser.getIdToken();
+        const result = await axios.post(`${baseURL}startGame`, {gameCode, token})
+
+        return result.data.data
+    } catch (ex) {
+        console.error(ex)
+        return {
+            "error": ex?.response?.data?.message || "An exception occurred when trying to remove a user from the game."
+        }
+    }
+}
+
 export async function removePlayer(gameCode, uid) {
     try {
         const token = await auth().currentUser.getIdToken();
