@@ -106,8 +106,6 @@ object FirebaseHandler {
             tokenClaims == null -> "The entered token cannot be verified."
             !tokenClaims.containsKey("userType") ||
                 !tokenClaims.containsKey("user_id") -> "The entered token is invalid."
-            uidToRemove == tokenUID && tokenClaims["userType"] == gameOwnerUserType ->
-                "Game creators cannot be removed from their own game."
             uidToRemove != tokenUID && tokenClaims["userType"] == playerUserType ->
                 "Only game owners can remove other players."
             else -> null
@@ -115,6 +113,10 @@ object FirebaseHandler {
 
         if (errorMessage == null) {
             val (result, fuelError) = this.restClient.removePlayer(gameCode, uidToRemove)
+
+            if(fuelError == null && uidToRemove == tokenUID && tokenClaims?.get("userType") == gameOwnerUserType) {
+                this.restClient.cancelGame(gameCode);
+            }
 
             return FirebaseResponse(
                 result,

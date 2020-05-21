@@ -124,8 +124,6 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
     fun addUserToGame(gameCode: String, user: UserRecord): Result<String, FuelError> =
         addUserToGame(gameCode, user.displayName, user.uid)
 
-    //TODO: Add function to add multiple random/generated users to a game for testing.
-
     fun addMultipleRandomPlayers(gameCode: String, playerCount: Int? = null): Result<String, FuelError> {
         val count = playerCount ?: Random.nextInt(4, 12)
 
@@ -219,6 +217,12 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
 
         return result
     }
+
+    fun cancelGame(gameCode: String): FirebaseResponse<String> {
+
+    }
+
+    private fun updateGameStatus()
 
     private fun checkAccessToken() {
         if (this.accessToken.expirationTime?.before(Date()) != false) {
