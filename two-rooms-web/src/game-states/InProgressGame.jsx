@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {makeStyles} from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
@@ -6,7 +6,9 @@ import CardContent from "@material-ui/core/CardContent";
 import gameRoles from "../gameRoles.json";
 import RoundTimer from "../components/RoundTimer";
 import Typography from "@material-ui/core/Typography";
-import {blue, red, green} from "@material-ui/core/colors";
+import {blue, green, red} from "@material-ui/core/colors";
+import Button from "@material-ui/core/Button";
+import {nextRound, startRound, endGame} from "../api";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -36,43 +38,71 @@ const useStyles = makeStyles(theme => ({
         color: 'black',
         backgroundColor: 'gray'
     },
-    leaveGameButtons: {
-        justifyContent: "center"
-    },
-    leaveGameButton: {
-        backgroundColor: red
-    },
-    leaveGameDialog: {
-        textAlign: "center"
+    roundAction: {
+        marginTop: 10
     }
 }));
+
+const calculateSwapCount = (playerCount, roundNumber) => {
+    // I miss `when` blocks
+    if (playerCount <= 10) return 1;
+    if (playerCount <= 21) return roundNumber === 1 ? 2 : 1;
+    return 4 - roundNumber;
+}
 
 export default function InProgressGame(props) {
     const classes = useStyles();
 
     const currentPlayer = props.currentPlayers?.find(p => p.uid === props.currentUser.uid) || {};
 
+    const isOwner = currentPlayer.uid === props.currentGame.owner;
+
     const role = gameRoles?.find(role => role.id === currentPlayer.role) || {};
+
+    const swapCount = calculateSwapCount(props.currentPlayers?.length || 0, props.currentGame.roundNumber)
 
     const getTeamClass = (team) => {
         let teamClass = 'grayTeam';
 
-        if(team === 'Blue') teamClass = 'blueTeam';
+        if (team === 'Blue') teamClass = 'blueTeam';
         else if (team === 'Red') teamClass = 'redTeam';
         else if (team === 'Green') teamClass = 'greenTeam';
 
         return classes[teamClass];
     }
 
+    const [displayRoundActionButton, setDisplayRoundActionButton] = useState(false)
+
+    const roundActionText = !props.currentGame.roundEndDateTime ? 'Start Round' :
+        props.currentGame.roundNumber < 3 ? 'Next Round' : 'Pick Winners';
+
+    const roundAction = () => {
+        setDisplayRoundActionButton(false);
+
+        if(!props.currentGame.roundEndDateTime) {
+            startRound(props.currentGame.gameCode, props.currentGame.roundNumber);
+        } else if (props.currentGame.roundNumber < 3) {
+            nextRound(props.currentGame.gameCode, props.currentGame.roundNumber);
+        } else {
+            endGame(props.currentGame.gameCode);
+        }
+
+    }
+
     return props.currentGame && (
         <div className={classes.container}>
             <div className={classes.container}>
                 <Card className={classes.card}>
-                    <CardHeader title="Two Rooms and a Boom" subheader={`Game in Progress: [${props.currentGame.gameCode}]`}/>
+                    <CardHeader title="Two Rooms and a Boom"
+                                subheader={`Game in Progress: [${props.currentGame.gameCode}]`}/>
                     <CardContent className={classes.roles}>
                         <Typography>Round {props.currentGame.roundNumber}</Typography>
-                        <RoundTimer endDateTime={props.currentGame.roundEndTime}/>
-                        <Typography>Swap {props.currentGame.swapCount} {props.currentGame.swapCount === 1 ? 'person' : 'people'}</Typography>
+                        <RoundTimer endDateTime={props.currentGame.roundEndDateTime}
+                                    onRoundEnd={(roundOver) => setDisplayRoundActionButton(roundOver)}/>
+                        <Typography>Swap {swapCount} {swapCount === 1 ? 'person' : 'people'} after round</Typography>
+                        {isOwner && displayRoundActionButton &&
+                        <Button variant="contained" size="large" color="secondary" className={classes.roundAction}
+                                onClick={roundAction}>{roundActionText}</Button>}
                     </CardContent>
                 </Card>
 

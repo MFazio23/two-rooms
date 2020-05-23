@@ -20,13 +20,19 @@ class ValueObjectDeserializer : JsonDeserializer<ValueObject> {
         val jsonObject = json as JsonObject
         return if (jsonObject.has("arrayValue")) {
             jsonObject.get("arrayValue")?.asJsonObject?.let { arrayValue ->
-                arrayValue.getAsJsonArray("values")?.let { values ->
-                    ArrayValueObject(
-                        ValueObjectArray(
-                            values.map { value ->
-                                convertValueObjectJsonObject(value as JsonObject)
-                            }
+                if(arrayValue.has("values")) {
+                    arrayValue.getAsJsonArray("values")?.let { values ->
+                        ArrayValueObject(
+                            ValueObjectArray(
+                                values.map { value ->
+                                    convertValueObjectJsonObject(value as JsonObject)
+                                }
+                            )
                         )
+                    }
+                } else {
+                    ArrayValueObject(
+                        ValueObjectArray(listOf())
                     )
                 }
             } ?: throw JsonParseException("Cannot parse the ArrayValueObject")

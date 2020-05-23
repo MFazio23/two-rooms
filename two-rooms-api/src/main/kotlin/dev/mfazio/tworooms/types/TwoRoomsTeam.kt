@@ -10,5 +10,8 @@ enum class TwoRoomsTeam {
     companion object {
         fun valueOfOrDefault(input: String?) =
             values().firstOrNull { status -> status.name == input } ?: Unknown
+
+        fun fromStringList(list: List<String>) =
+            list.map { teamString -> TwoRoomsTeam.valueOfOrDefault(teamString) }
     }
 }

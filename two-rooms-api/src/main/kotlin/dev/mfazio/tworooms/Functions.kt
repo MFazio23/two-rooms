@@ -7,8 +7,8 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import dev.mfazio.tworooms.types.TwoRoomsRole
+import dev.mfazio.tworooms.types.TwoRoomsTeam
 import dev.mfazio.tworooms.types.api.*
-import java.util.*
 
 class Functions {
     private val gson = Gson()
@@ -28,7 +28,7 @@ class Functions {
 
             val response = FirebaseHandler.findFullGame(gameCode)
 
-            return@runFun if(response.error == null) {
+            return@runFun if (response.error == null) {
                 request.respond(
                     HttpStatus.OK,
                     null,
@@ -38,6 +38,7 @@ class Functions {
                 request.badRequest(response.error)
             }
         }
+
     @FunctionName("createGame")
     fun createGame(
         @HttpTrigger(
@@ -58,7 +59,7 @@ class Functions {
                 TwoRoomsRole.fromMap(createGameAPIRequest.roles)
             )
 
-            return@runFun if(response.error == null) {
+            return@runFun if (response.error == null) {
                 request.respond(
                     HttpStatus.CREATED,
                     null,
@@ -89,7 +90,7 @@ class Functions {
                 joinGameAPIRequest.name
             )
 
-            return@runFun if(response.error == null) {
+            return@runFun if (response.error == null) {
                 request.respond(
                     HttpStatus.OK,
                     null,
@@ -120,7 +121,7 @@ class Functions {
                 addRandomPlayersAPIRequest.count
             )
 
-            return@runFun if(response.error == null) {
+            return@runFun if (response.error == null) {
                 request.respond(
                     HttpStatus.OK,
                     null,
@@ -152,7 +153,7 @@ class Functions {
                 removePlayerAPIRequest.token
             )
 
-            return@runFun if(response.error == null) {
+            return@runFun if (response.error == null) {
                 request.respond(
                     HttpStatus.OK,
                     null,
@@ -176,14 +177,45 @@ class Functions {
             val requestBody = request.body
                 ?: return@runFun request.badRequest("The entered body is empty.")
 
-            val startGameAPIRequest = gson.fromJson<StartGameAPIRequest>(requestBody)
+            val startGameAPIRequest = gson.fromJson<UpdateGameAPIRequest>(requestBody)
 
             val response = FirebaseHandler.startGame(
                 startGameAPIRequest.gameCode,
                 startGameAPIRequest.token
             )
 
-            return@runFun if(response.error == null) {
+            return@runFun if (response.error == null) {
+                request.respond(
+                    HttpStatus.OK,
+                    null,
+                    response.data
+                )
+            } else {
+                request.badRequest(response.error)
+            }
+        }
+
+    @FunctionName("endGame")
+    fun endGame(
+        @HttpTrigger(
+            name = "endGame",
+            methods = [HttpMethod.POST, HttpMethod.PUT],
+            authLevel = AuthorizationLevel.ANONYMOUS
+        ) request: HttpRequestMessage<String?>,
+        context: ExecutionContext
+    ): HttpResponseMessage? =
+        runFun(request, context) {
+            val requestBody = request.body
+                ?: return@runFun request.badRequest("The entered body is empty.")
+
+            val endGameAPIRequest = gson.fromJson<UpdateGameAPIRequest>(requestBody)
+
+            val response = FirebaseHandler.endGame(
+                endGameAPIRequest.gameCode,
+                endGameAPIRequest.token
+            )
+
+            return@runFun if (response.error == null) {
                 request.respond(
                     HttpStatus.OK,
                     null,
@@ -204,26 +236,90 @@ class Functions {
         context: ExecutionContext
     ): HttpResponseMessage? =
         runFun(request, context) {
-            val gameCode = request.queryParameters["gameCode"]
-                ?: return@runFun request.badRequest("The 'gameCode' query string parameter is required.")
+            val requestBody = request.body
+                ?: return@runFun request.badRequest("The entered body is empty.")
 
-            return@runFun request.respond(HttpStatus.OK, "Entered game code is [${gameCode}].")
+            val updateRoundAPIRequest = gson.fromJson<UpdateRoundAPIRequest>(requestBody)
+
+            val response = FirebaseHandler.startRound(
+                updateRoundAPIRequest.gameCode,
+                updateRoundAPIRequest.token,
+                updateRoundAPIRequest.roundNumber
+            )
+
+            return@runFun if (response.error == null) {
+                request.respond(
+                    HttpStatus.OK,
+                    null,
+                    response.data
+                )
+            } else {
+                request.badRequest(response.error)
+            }
         }
 
-    @FunctionName("gameWinners")
-    fun gameWinners(
+    @FunctionName("nextRound")
+    fun nextRound(
         @HttpTrigger(
-            name = "gameWinners",
+            name = "nextRound",
             methods = [HttpMethod.POST, HttpMethod.PUT],
             authLevel = AuthorizationLevel.ANONYMOUS
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext
     ): HttpResponseMessage? =
         runFun(request, context) {
-            val gameCode = request.queryParameters["gameCode"]
-                ?: return@runFun request.badRequest("The 'gameCode' query string parameter is required.")
+            val requestBody = request.body
+                ?: return@runFun request.badRequest("The entered body is empty.")
 
-            return@runFun request.respond(HttpStatus.OK, "Entered game code is [${gameCode}].")
+            val updateRoundAPIRequest = gson.fromJson<UpdateRoundAPIRequest>(requestBody)
+
+            val response = FirebaseHandler.nextRound(
+                updateRoundAPIRequest.gameCode,
+                updateRoundAPIRequest.token,
+                updateRoundAPIRequest.roundNumber
+            )
+
+            return@runFun if (response.error == null) {
+                request.respond(
+                    HttpStatus.OK,
+                    null,
+                    response.data
+                )
+            } else {
+                request.badRequest(response.error)
+            }
+        }
+
+    @FunctionName("pickWinners")
+    fun pickWinners(
+        @HttpTrigger(
+            name = "pickWinners",
+            methods = [HttpMethod.POST, HttpMethod.PUT],
+            authLevel = AuthorizationLevel.ANONYMOUS
+        ) request: HttpRequestMessage<String?>,
+        context: ExecutionContext
+    ): HttpResponseMessage? =
+        runFun(request, context) {
+            val requestBody = request.body
+                ?: return@runFun request.badRequest("The entered body is empty.")
+
+            val pickWinnersAPIRequest = gson.fromJson<PickWinnersAPIRequest>(requestBody)
+
+            val response = FirebaseHandler.pickWinners(
+                pickWinnersAPIRequest.gameCode,
+                pickWinnersAPIRequest.token,
+                TwoRoomsTeam.fromStringList(pickWinnersAPIRequest.winners)
+            )
+
+            return@runFun if (response.error == null) {
+                request.respond(
+                    HttpStatus.OK,
+                    null,
+                    response.data
+                )
+            } else {
+                request.badRequest(response.error)
+            }
         }
 
     private fun runFun(

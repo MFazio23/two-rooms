@@ -5,6 +5,7 @@ enum class GameStatus {
     Created,
     Started,
     Ended,
+    Canceled,
     Error;
 
     companion object {

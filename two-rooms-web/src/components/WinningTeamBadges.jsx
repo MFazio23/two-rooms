@@ -20,21 +20,21 @@ const loserColor = 'darkgray';
 
 export default function WinningTeamBadges(props) {
     const classes = useStyles();
-    const iconClicked = typeof props.iconClicked === 'function' ? props.iconClicked : (() => false);
+    const iconClicked = typeof props.toggleWinningTeam === 'function' ? props.toggleWinningTeam : (() => false);
 
     return (
         <div className={classes.badges}>
-            <StarIcon onClick={() => iconClicked('blue')} fontSize="large"
-                      htmlColor={!props.winner || props.winner === 'blue' ? blue[500] : loserColor}/>
+            <StarIcon onClick={() => iconClicked('Blue')} fontSize="large"
+                      htmlColor={props.winners?.includes('Blue') ? blue[500] : loserColor}/>
 
-            <Icon onClick={() => iconClicked('red')} path={mdiBomb} title="Red Team" size={1.5}
-                  color={!props.winner || props.winner === 'red' ? red[500] : loserColor}/>
+            <Icon onClick={() => iconClicked('Red')} path={mdiBomb} title="Red Team" size={1.5}
+                  color={props.winners?.includes('Red')  ? red[500] : loserColor}/>
 
-            <HelpIcon onClick={() => iconClicked('gray')} fontSize="large"
-                      htmlColor={!props.winner || props.winner === 'gray' ? 'gray' : loserColor}/>
+            <HelpIcon onClick={() => iconClicked('Gray')} fontSize="large"
+                      htmlColor={props.winners?.includes('Gray')  ? 'gray' : loserColor}/>
 
-            <HelpIcon onClick={() => iconClicked('green')} fontSize="large"
-                      htmlColor={!props.winner || props.winner === 'green' ? green[500] : loserColor}/>
+            <HelpIcon onClick={() => iconClicked('Green')} fontSize="large"
+                      htmlColor={props.winners?.includes('Green')  ? green[500] : loserColor}/>
         </div>
     )
 }

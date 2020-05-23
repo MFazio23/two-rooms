@@ -1,7 +1,10 @@
 package dev.mfazio.tworooms.restclient
 
-import com.github.kittinunf.fuel.*
 import com.github.kittinunf.fuel.core.FuelError
+import com.github.kittinunf.fuel.httpDelete
+import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.fuel.httpPatch
+import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 import com.github.salomonbrys.kotson.fromJson
 import com.google.auth.oauth2.AccessToken
@@ -11,6 +14,8 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dev.mfazio.tworooms.restclient.types.*
 import dev.mfazio.tworooms.types.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.floor
 import kotlin.random.Random
@@ -72,6 +77,8 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
                     "gameCode" to StringValueObject(gameCode),
                     "ownerUID" to StringValueObject(user.uid),
                     "status" to StringValueObject(GameStatus.Created.name),
+                    "roundNumber" to IntegerValueObject(1),
+                    "roundEndDateTime" to StringValueObject(""),
                     "roles" to ArrayValueObject(ValueObjectArray(roles.map { StringValueObject(it.name) }))
                 )
             )
@@ -128,15 +135,15 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
         val count = playerCount ?: Random.nextInt(4, 12)
 
         val results = (1..count).map { _ ->
-                val name = ((65..90) + (97..122))
-                    .map { it.toChar().toString() }
-                    .shuffled()
-                    .take(Random.nextInt(4, 12))
-                    .joinToString("")
+            val name = ((65..90) + (97..122))
+                .map { it.toChar().toString() }
+                .shuffled()
+                .take(Random.nextInt(4, 12))
+                .joinToString("")
 
-                val result = addUserToGame(gameCode, name, UUID.randomUUID().toString())
+            val result = addUserToGame(gameCode, name, UUID.randomUUID().toString())
 
-            if(result.component2() != null) return result
+            if (result.component2() != null) return result
 
             result
         }
@@ -178,6 +185,8 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
         checkAccessToken()
         val distributedPlayers = distributeTeams(game)
 
+        //TODO: Make this all a single transaction.
+
         distributedPlayers.forEach { player ->
             val body = Gson().toJson(
                 FirebaseDocument(
@@ -204,25 +213,96 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
             }
         }
 
-        //TODO: Make this all a single transaction.
+        return this.updateGameStatus(game.gameCode, GameStatus.Started)
+    }
+
+    fun endGame(gameCode: String): Result<String, FuelError> = this.updateGameStatus(gameCode, GameStatus.Ended)
+
+    fun cancelGame(gameCode: String): Result<String, FuelError> = this.updateGameStatus(gameCode, GameStatus.Canceled)
+
+    fun startRound(game: TwoRoomsGame, roundNumber: Int): Result<String, FuelError> {
+        checkAccessToken()
+
         val body = Gson().toJson(
-            FirebaseDocument(fields = mapOf("status" to StringValueObject(GameStatus.Started.name)))
+            FirebaseDocument(
+                fields = mapOf(
+                    "roundEndDateTime" to StringValueObject(
+                        LocalDateTime.now().plusMinutes((4 - roundNumber).toLong())
+                            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    )
+                )
+            )
         )
 
-        val (request, response, result) = "$baseAPIUrl/${game.gameCode}?updateMask.fieldPaths=status"
-            .httpPatch()
-            .body(body)
-            .header("Authorization", "Bearer ${accessToken.tokenValue}")
-            .responseString()
+        val (request, response, result) =
+            "$baseAPIUrl/${game.gameCode}?updateMask.fieldPaths=roundEndDateTime"
+                .httpPatch()
+                .body(body)
+                .header("Authorization", "Bearer ${accessToken.tokenValue}")
+                .responseString()
 
         return result
     }
 
-    fun cancelGame(gameCode: String): FirebaseResponse<String> {
+    fun nextRound(game: TwoRoomsGame, roundNumber: Int): Result<String, FuelError> {
+        checkAccessToken()
 
+        val body = Gson().toJson(
+            FirebaseDocument(
+                fields = mapOf(
+                    "roundNumber" to IntegerValueObject(roundNumber + 1),
+                    "roundEndDateTime" to StringValueObject("")
+                )
+            )
+        )
+
+        val (request, response, result) =
+            "$baseAPIUrl/${game.gameCode}?updateMask.fieldPaths=roundNumber&updateMask.fieldPaths=roundEndDateTime"
+                .httpPatch()
+                .body(body)
+                .header("Authorization", "Bearer ${accessToken.tokenValue}")
+                .responseString()
+
+        return result
     }
 
-    private fun updateGameStatus()
+    fun pickWinners(game: TwoRoomsGame, winners: List<TwoRoomsTeam>): Result<String, FuelError> {
+        checkAccessToken()
+
+        val body = Gson().toJson(
+            FirebaseDocument(
+                fields = mapOf(
+                    "winners" to ArrayValueObject(ValueObjectArray(winners.map { StringValueObject(it.name) }))
+                )
+            )
+        )
+
+        val (request, response, result) =
+            "$baseAPIUrl/${game.gameCode}?updateMask.fieldPaths=winners"
+                .httpPatch()
+                .body(body)
+                .header("Authorization", "Bearer ${accessToken.tokenValue}")
+                .responseString()
+
+        return result
+    }
+
+    private fun updateGameStatus(gameCode: String, status: GameStatus): Result<String, FuelError> {
+        checkAccessToken()
+
+        val body = Gson().toJson(
+            FirebaseDocument(fields = mapOf("status" to StringValueObject(status.name)))
+        )
+
+        val (request, response, result) =
+            "$baseAPIUrl/${gameCode}?updateMask.fieldPaths=status"
+                .httpPatch()
+                .body(body)
+                .header("Authorization", "Bearer ${accessToken.tokenValue}")
+                .responseString()
+
+        return result
+    }
 
     private fun checkAccessToken() {
         if (this.accessToken.expirationTime?.before(Date()) != false) {

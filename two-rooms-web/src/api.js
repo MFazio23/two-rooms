@@ -66,3 +66,59 @@ export async function removePlayer(gameCode, uid) {
         }
     }
 }
+
+export async function startRound(gameCode, roundNumber) {
+    try {
+        const token = await auth().currentUser.getIdToken();
+        const result = await axios.post(`${baseURL}startRound`, {gameCode, token, roundNumber})
+
+        return result.data.data
+    } catch (ex) {
+        console.error(ex)
+        return {
+            "error": ex?.response?.data?.message || "An exception occurred when trying to start a round."
+        }
+    }
+}
+
+export async function nextRound(gameCode, roundNumber) {
+    try {
+        const token = await auth().currentUser.getIdToken();
+        const result = await axios.post(`${baseURL}nextRound`, {gameCode, token, roundNumber})
+
+        return result.data.data
+    } catch (ex) {
+        console.error(ex)
+        return {
+            "error": ex?.response?.data?.message || "An exception occurred when trying to continue to the next round."
+        }
+    }
+}
+
+export async function endGame(gameCode) {
+    try {
+        const token = await auth().currentUser.getIdToken();
+        const result = await axios.post(`${baseURL}endGame`, {gameCode, token})
+
+        return result.data.data
+    } catch (ex) {
+        console.error(ex)
+        return {
+            "error": ex?.response?.data?.message || "An exception occurred when trying to end a game."
+        }
+    }
+}
+
+export async function selectWinners(gameCode, winners) {
+    try {
+        const token = await auth().currentUser.getIdToken();
+        const result = await axios.post(`${baseURL}pickWinners`, {gameCode, token, winners})
+
+        return result.data.data
+    } catch (ex) {
+        console.error(ex)
+        return {
+            "error": ex?.response?.data?.message || "An exception occurred when trying to pick game winners."
+        }
+    }
+}

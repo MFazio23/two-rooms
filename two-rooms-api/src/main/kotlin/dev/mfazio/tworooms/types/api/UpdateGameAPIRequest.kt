@@ -1,6 +1,6 @@
 package dev.mfazio.tworooms.types.api
 
-data class StartGameAPIRequest(
+data class UpdateGameAPIRequest(
     val gameCode: String,
     val token: String
 )

@@ -11,8 +11,10 @@ import dev.mfazio.tworooms.types.results.CreateGameResult
 import dev.mfazio.tworooms.types.FirebaseResponse
 import dev.mfazio.tworooms.types.TwoRoomsGame
 import dev.mfazio.tworooms.types.TwoRoomsRole
+import dev.mfazio.tworooms.types.TwoRoomsTeam
 import dev.mfazio.tworooms.types.results.JoinGameResult
 
+//TODO: The validation logic for a bunch of actions is duplicated.  Can't I pull that out to a single function?
 object FirebaseHandler {
     private const val claimGameCode = "gameCode"
     private const val claimUserType = "userType"
@@ -168,6 +170,46 @@ object FirebaseHandler {
         return FirebaseResponse(null, errorMessage)
     }
 
+    fun endGame(gameCode: String, token: String): FirebaseResponse<String> {
+        if (token.isBlank()) {
+            return FirebaseResponse(null, "Access token is required.")
+        }
+
+        val currentGameResponse = this.findFullGame(gameCode)
+
+        if (currentGameResponse.error != null || currentGameResponse.data == null) {
+            return FirebaseResponse(null, currentGameResponse.error)
+        }
+
+        val currentGame: TwoRoomsGame = currentGameResponse.data
+
+        val firebaseToken: FirebaseToken? = FirebaseAuth.getInstance().verifyIdToken(token)
+
+        val tokenUID = firebaseToken?.uid
+
+        val tokenClaims = firebaseToken?.claims
+
+        val errorMessage: String? = when {
+            tokenClaims == null -> "The entered token cannot be verified."
+            !tokenClaims.containsKey("userType") ||
+                !tokenClaims.containsKey("user_id") -> "The entered token is invalid."
+            tokenClaims["userType"] != gameOwnerUserType || tokenUID != currentGame.ownerUID ->
+                "Only game owners can end a game."
+            else -> null
+        }
+
+        if (errorMessage == null) {
+            val (result, fuelError) = this.restClient.endGame(currentGame.gameCode)
+
+            return FirebaseResponse(
+                result,
+                fuelError?.message
+            )
+        }
+
+        return FirebaseResponse(null, errorMessage)
+    }
+
     fun findGame(gameCode: String): FirebaseResponse<TwoRoomsGame> {
         val findGameResponse = this.restClient.findGame(gameCode)
 
@@ -185,6 +227,126 @@ object FirebaseHandler {
             TwoRoomsGame.fromFirebaseDocuments(findGameResponse.data, getPlayersResponse.data),
             findGameResponse.error?.message
         )
+    }
+
+    fun startRound(gameCode: String, token: String, roundNumber: Int): FirebaseResponse<String> {
+        if (token.isBlank()) {
+            return FirebaseResponse(null, "Access token is required.")
+        }
+
+        val currentGameResponse = this.findFullGame(gameCode)
+
+        if (currentGameResponse.error != null || currentGameResponse.data == null) {
+            return FirebaseResponse(null, currentGameResponse.error)
+        }
+
+        val currentGame: TwoRoomsGame = currentGameResponse.data
+
+        val firebaseToken: FirebaseToken? = FirebaseAuth.getInstance().verifyIdToken(token)
+
+        val tokenUID = firebaseToken?.uid
+
+        val tokenClaims = firebaseToken?.claims
+
+        val errorMessage: String? = when {
+            tokenClaims == null -> "The entered token cannot be verified."
+            !tokenClaims.containsKey("userType") ||
+                !tokenClaims.containsKey("user_id") -> "The entered token is invalid."
+            tokenClaims["userType"] != gameOwnerUserType || tokenUID != currentGame.ownerUID ->
+                "Only game owners can start a round."
+            else -> null
+        }
+
+        if (errorMessage == null) {
+            val (result, fuelError) = this.restClient.startRound(currentGame, roundNumber)
+
+            return FirebaseResponse(
+                result,
+                fuelError?.message
+            )
+        }
+
+        return FirebaseResponse(null, errorMessage)
+    }
+
+    fun nextRound(gameCode: String, token: String, roundNumber: Int): FirebaseResponse<String> {
+        if (token.isBlank()) {
+            return FirebaseResponse(null, "Access token is required.")
+        }
+
+        val currentGameResponse = this.findFullGame(gameCode)
+
+        if (currentGameResponse.error != null || currentGameResponse.data == null) {
+            return FirebaseResponse(null, currentGameResponse.error)
+        }
+
+        val currentGame: TwoRoomsGame = currentGameResponse.data
+
+        val firebaseToken: FirebaseToken? = FirebaseAuth.getInstance().verifyIdToken(token)
+
+        val tokenUID = firebaseToken?.uid
+
+        val tokenClaims = firebaseToken?.claims
+
+        val errorMessage: String? = when {
+            tokenClaims == null -> "The entered token cannot be verified."
+            !tokenClaims.containsKey("userType") ||
+                !tokenClaims.containsKey("user_id") -> "The entered token is invalid."
+            tokenClaims["userType"] != gameOwnerUserType || tokenUID != currentGame.ownerUID ->
+                "Only game owners can advance a round."
+            else -> null
+        }
+
+        if (errorMessage == null) {
+            val (result, fuelError) = this.restClient.nextRound(currentGame, roundNumber)
+
+            return FirebaseResponse(
+                result,
+                fuelError?.message
+            )
+        }
+
+        return FirebaseResponse(null, errorMessage)
+    }
+
+    fun pickWinners(gameCode: String, token: String, winners: List<TwoRoomsTeam>): FirebaseResponse<String> {
+        if (token.isBlank()) {
+            return FirebaseResponse(null, "Access token is required.")
+        }
+
+        val currentGameResponse = this.findFullGame(gameCode)
+
+        if (currentGameResponse.error != null || currentGameResponse.data == null) {
+            return FirebaseResponse(null, currentGameResponse.error)
+        }
+
+        val currentGame: TwoRoomsGame = currentGameResponse.data
+
+        val firebaseToken: FirebaseToken? = FirebaseAuth.getInstance().verifyIdToken(token)
+
+        val tokenUID = firebaseToken?.uid
+
+        val tokenClaims = firebaseToken?.claims
+
+        val errorMessage: String? = when {
+            tokenClaims == null -> "The entered token cannot be verified."
+            !tokenClaims.containsKey("userType") ||
+                !tokenClaims.containsKey("user_id") -> "The entered token is invalid."
+            tokenClaims["userType"] != gameOwnerUserType || tokenUID != currentGame.ownerUID ->
+                "Only game owners can pick winners."
+            else -> null
+        }
+
+        if (errorMessage == null) {
+            val (result, fuelError) = this.restClient.pickWinners(currentGame, winners)
+
+            return FirebaseResponse(
+                result,
+                fuelError?.message
+            )
+        }
+
+        return FirebaseResponse(null, errorMessage)
     }
 }
 

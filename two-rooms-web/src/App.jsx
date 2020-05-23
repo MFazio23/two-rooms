@@ -14,6 +14,7 @@ import "./spinner.css";
 import Snackbar from "@material-ui/core/Snackbar";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from '@material-ui/icons/Close';
+import {DateTime} from "luxon";
 
 const theme = createMuiTheme({
     palette: {
@@ -115,7 +116,10 @@ function App() {
                             gameCode: data.gameCode,
                             status: data.status,
                             roles: currentGameRoles,
-                            owner: data.ownerUID
+                            owner: data.ownerUID,
+                            roundNumber: data.roundNumber,
+                            roundEndDateTime: data.roundEndDateTime ? DateTime.fromISO(data.roundEndDateTime) : null,
+                            winningTeams: data.winners
                         });
 
                         setFlowFromStatus(data.status);
@@ -178,7 +182,8 @@ function App() {
         flowComponent = <InProgressGame updateFlow={updateFlow} currentGame={currentGame} currentUser={currentUser}
                                         currentPlayers={currentPlayers} roundInfo={roundInfo}/>
     } else if (flow === 'ended') {
-        flowComponent = <EndedGame currentUser={currentUser} updateFlow={updateFlow} currentGame={currentGame}/>
+        flowComponent = <EndedGame currentUser={currentUser} currentPlayers={currentPlayers} currentGame={currentGame}
+                                   updateFlow={updateFlow}/>
     }
 
     return (

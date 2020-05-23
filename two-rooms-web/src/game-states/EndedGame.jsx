@@ -11,6 +11,8 @@ import WinningTeamBadges from "../components/WinningTeamBadges";
 import Typography from "@material-ui/core/Typography";
 import WinningTeamDialog from "../components/WinningTeamDialog";
 import Button from "@material-ui/core/Button";
+import {selectWinners} from "../api";
+import {logOut} from "../firebase";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -51,46 +53,56 @@ const useStyles = makeStyles(theme => ({
 export default function EndedGame(props) {
     const classes = useStyles();
 
-    const [winningTeam, setWinningTeam] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
 
     const closeDialog = () => {
-        setDialogOpen(false)
+        setDialogOpen(true)//false)
     }
 
-    const winningTeamSelected = (team) => {
-        setWinningTeam(team);
+    const winningTeamsSelected = (winners) => {
+        selectWinners(props.currentGame.gameCode, winners);
         setDialogOpen(false);
+    }
+
+    const newGame = () => {
+        logOut();
     }
 
     return (
         <div className={classes.container}>
             <div className={classes.container}>
                 <Card className={classes.card}>
-                    <CardHeader title="Two Rooms and a Boom" subheader={`Game Over: [${props.gameId}]`}/>
+                    <CardHeader title="Two Rooms and a Boom" subheader={`Game Over: [${props.currentGame.gameCode}]`}/>
                     <CardContent className={classes.roles}>
                         <div className={classes.winningTeamSection}>
-                            <Typography variant="h6" component="span">Winning Team: </Typography>
+                            <Typography variant="h6" component="span">Winning
+                                Team{props.currentGame.winningTeams?.length > 1 ? 's' : ''}: </Typography>
                             <Typography className={classes.winningTeamLabel} variant="h4"
-                                        component="span">{winningTeam || "???"}</Typography>
+                                        component="span">{props.currentGame.winningTeams?.join(", ") || "???"}</Typography>
                         </div>
                         {(props.currentUser.uid === props.currentGame.owner) &&
                         <Button color="primary" size="large" variant="contained" onClick={() => setDialogOpen(true)}>
-                            Pick Winners
+                            Select Winners
                         </Button>}
-                        {/* TODO: Allow leader to select the winning team?  How to handle Gray/Green and multiple winning teams? */}
-                        <WinningTeamBadges winner={winningTeam}/>
+                        <WinningTeamBadges winners={props.currentGame.winningTeams}/>
+                        <Button color="secondary" size="large" variant="contained" onClick={newGame}>
+                            New Game?
+                        </Button>
                     </CardContent>
                 </Card>
 
                 <Card className={classes.card}>
                     <CardHeader subheader="Current Players"/>
                     <CardContent>
-                        <PlayersGrid showRole={true}/>
+                        <PlayersGrid currentUser={props.currentUser}
+                                     currentPlayers={props.currentPlayers}
+                                     showRole={props.currentGame.winningTeams?.length > 0}/>
                     </CardContent>
                 </Card>
             </div>
-            <WinningTeamDialog dialogOpen={dialogOpen} onClose={closeDialog} winningTeamSelected={winningTeamSelected}/>
+            <WinningTeamDialog dialogOpen={dialogOpen} onClose={closeDialog}
+                               winningTeams={props.currentGame.winningTeams}
+                               winningTeamsSelected={winningTeamsSelected}/>
         </div>
     )
 }

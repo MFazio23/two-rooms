@@ -3,15 +3,15 @@ import Typography from "@material-ui/core/Typography";
 import {DateTime} from "luxon";
 import {makeStyles} from "@material-ui/core/styles";
 
+const notStartedYet = "Not Started Yet";
 const timesUp = "Time's Up!";
 
 export default function RoundTimer(props) {
     const calculateTimeLeft = () => {
-        const endTime = DateTime.fromISO(props.endDateTime || "2020-04-10 12:35:00", { zone: 'utc' });
+        if(!props.endDateTime) return notStartedYet;
+        const endTime = DateTime.fromISO(props.endDateTime, { zone: 'utc' });
 
-        const remaining = endTime.diff(DateTime.utc());
-
-        console.log(remaining.toISO(), remaining.minutes, remaining.seconds, remaining);
+        const remaining = endTime.diffNow();
 
         return remaining.milliseconds > 0 ? remaining.toFormat("mm:ss") : timesUp;
     }
@@ -21,6 +21,10 @@ export default function RoundTimer(props) {
     useEffect(() => {
         setTimeout(() => {
             setTimeLeft(calculateTimeLeft());
+            if(timeLeft === timesUp) {
+                console.log("On round end");
+                props.onRoundEnd(true);
+            }
         }, 1000)
     })
 
