@@ -2,7 +2,8 @@ const {auth, logInWithToken} = require('./firebase')
 
 const axios = require('axios').default
 
-const baseURL = "http://localhost:7071/api/"
+const baseURL = "https://tworoomsapi.azurewebsites.net/api/"
+//const baseURL = "http://localhost:7071/api/"
 
 export async function joinGame(gameCode, name) {
     try {
