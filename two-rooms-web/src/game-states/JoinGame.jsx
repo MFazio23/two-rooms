@@ -79,7 +79,7 @@ export default function JoinGame(props) {
             localStorage.setItem(twoRoomsPlayerName, playerName);
             setLoading(true);
             try {
-                const joinGameResult = await joinGame(gameCode, playerName);
+                const joinGameResult = await joinGame(gameCode.toUpperCase(), playerName);
                 setLoading(false);
                 setSuccess(true);
             } catch (e) {
