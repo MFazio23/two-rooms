@@ -100,7 +100,7 @@ export default function InProgressGame(props) {
                         <RoundTimer endDateTime={props.currentGame.roundEndDateTime}
                                     onRoundEnd={(roundOver) => setDisplayRoundActionButton(roundOver)}/>
                         <Typography>Swap {swapCount} {swapCount === 1 ? 'person' : 'people'} after round</Typography>
-                        {isOwner && displayRoundActionButton &&
+                        {isOwner  &&
                         <Button variant="contained" size="large" color="secondary" className={classes.roundAction}
                                 onClick={roundAction}>{roundActionText}</Button>}
                     </CardContent>
