@@ -4,7 +4,6 @@ import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
-import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import {joinGame} from "../api"
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -91,59 +90,57 @@ export default function JoinGame(props) {
 
     return (
         <div className={classes.container}>
-            <form>
-                <Card className={classes.card}>
-                    <CardHeader
-                        title="Two Rooms and a Boom"
-                        subheader="Join a Game"
-                    />
-                    <CardContent>
-                        <div>
-                            <GameEntryField
-                                id="gameCode"
-                                inputProps={{
-                                    maxLength: 6,
-                                    autoComplete: "off",
-                                    pattern: "[A-Za-z]{6}",
-                                    required: true
-                                }}
-                                inputClasses={classes.joinGameCodeInput}
-                                label="Game Code"
-                                value={gameCode}
-                                onChange={e => setGameCode(e.target.value)}
-                            />
-                        </div>
-                        <div>
-                            <GameEntryField
-                                id="playerName"
-                                inputProps={{
-                                    autoComplete: "off",
-                                    required: true
-                                }}
-                                inputClasses={classes.joinGameNameInput}
-                                name="playerName"
-                                label="Player Name"
-                                variant="outlined"
-                                value={playerName}
-                                onChange={e => setPlayerName(e.target.value)}
-                            />
-                        </div>
-                    </CardContent>
-                    <CardActions className={classes.joinGameButtons}>
-                        <div className={classes.wrapper}>
-                            <Button variant="contained" type="submit" size="large" color="primary"
-                                    className={joinGameButtonClassname} onClick={joinGameClicked} disabled={loading}>
-                                Join Game
-                            </Button>
-                            {loading && <CircularProgress size={24} className={classes.buttonProgress}/>}
-                        </div>
-                        <Button variant="contained" size="large" color="default"
-                                onClick={clearForm}>
-                            Clear Form
+            <Card className={classes.card}>
+                <CardHeader
+                    title="Two Rooms and a Boom"
+                    subheader="Join a Game"
+                />
+                <CardContent>
+                    <div>
+                        <GameEntryField
+                            id="gameCode"
+                            inputProps={{
+                                maxLength: 6,
+                                autoComplete: "off",
+                                pattern: "[A-Za-z]{6}",
+                                required: true
+                            }}
+                            inputClasses={classes.joinGameCodeInput}
+                            label="Game Code"
+                            value={gameCode}
+                            onChange={e => setGameCode(e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <GameEntryField
+                            id="playerName"
+                            inputProps={{
+                                autoComplete: "off",
+                                required: true
+                            }}
+                            inputClasses={classes.joinGameNameInput}
+                            name="playerName"
+                            label="Player Name"
+                            variant="outlined"
+                            value={playerName}
+                            onChange={e => setPlayerName(e.target.value)}
+                        />
+                    </div>
+                </CardContent>
+                <CardActions className={classes.joinGameButtons}>
+                    <div className={classes.wrapper}>
+                        <Button variant="contained" type="submit" size="large" color="primary"
+                                className={joinGameButtonClassname} onClick={joinGameClicked} disabled={loading}>
+                            Join Game
                         </Button>
-                    </CardActions>
-                </Card>
-            </form>
+                        {loading && <CircularProgress size={24} className={classes.buttonProgress}/>}
+                    </div>
+                    <Button variant="contained" size="large" color="default"
+                            onClick={clearForm}>
+                        Clear Form
+                    </Button>
+                </CardActions>
+            </Card>
             <Card className={classes.card}>
                 <CardHeader subheader="Want to create your own game?"/>
                 <CardContent>
