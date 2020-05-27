@@ -22,7 +22,6 @@ export default function RoundTimer(props) {
         setTimeout(() => {
             setTimeLeft(calculateTimeLeft());
             if(timeLeft === timesUp) {
-                console.log("On round end");
                 props.onRoundEnd(true);
             }
         }, 1000)

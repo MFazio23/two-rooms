@@ -71,7 +71,7 @@ export default function InProgressGame(props) {
         return classes[teamClass];
     }
 
-    const [displayRoundActionButton, setDisplayRoundActionButton] = useState(false)
+    const [displayRoundActionButton, setDisplayRoundActionButton] = useState(!props.currentGame.roundEndDateTime)
 
     const roundActionText = !props.currentGame.roundEndDateTime ? 'Start Round' :
         props.currentGame.roundNumber < 3 ? 'Next Round' : 'Pick Winners';
@@ -100,7 +100,7 @@ export default function InProgressGame(props) {
                         <RoundTimer endDateTime={props.currentGame.roundEndDateTime}
                                     onRoundEnd={(roundOver) => setDisplayRoundActionButton(roundOver)}/>
                         <Typography>Swap {swapCount} {swapCount === 1 ? 'person' : 'people'} after round</Typography>
-                        {isOwner  &&
+                        {isOwner && displayRoundActionButton &&
                         <Button variant="contained" size="large" color="secondary" className={classes.roundAction}
                                 onClick={roundAction}>{roundActionText}</Button>}
                     </CardContent>

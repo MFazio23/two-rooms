@@ -14,7 +14,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dev.mfazio.tworooms.restclient.types.*
 import dev.mfazio.tworooms.types.*
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.floor
@@ -227,8 +227,8 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
             FirebaseDocument(
                 fields = mapOf(
                     "roundEndDateTime" to StringValueObject(
-                        LocalDateTime.now().plusMinutes((4 - roundNumber).toLong())
-                            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                        OffsetDateTime.now().plusMinutes((4 - roundNumber).toLong())
+                            .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
                     )
                 )
             )

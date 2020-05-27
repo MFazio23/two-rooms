@@ -142,6 +142,10 @@ object FirebaseHandler {
 
         val currentGame: TwoRoomsGame = currentGameResponse.data
 
+        if(currentGame.players.count { it != null } < 6) {
+            return FirebaseResponse(null, "Games must have at least six players.")
+        }
+
         val firebaseToken: FirebaseToken? = FirebaseAuth.getInstance().verifyIdToken(token)
 
         val tokenUID = firebaseToken?.uid

@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function WinningTeamDialog(props) {
     const classes = useStyles();
-    const [winningTeams, setWinningTeams] = useState(props.winningTeams);
+    const [winningTeams, setWinningTeams] = useState(props.winningTeams || []);
 
     const toggleWinningTeam = (team) => {
         if (winningTeams.includes(team)) {
@@ -43,7 +43,7 @@ export default function WinningTeamDialog(props) {
             <Card>
                 <CardContent>
                     <Typography className={classes.winningTeamList} component="div"
-                                variant="h6">{winningTeams.join(", ")}</Typography>
+                                variant="h6">{winningTeams?.join(", ")}</Typography>
 
                     <Typography>Please select the winning team(s) from the list below.</Typography>
 

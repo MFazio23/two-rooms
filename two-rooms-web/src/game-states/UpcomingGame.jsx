@@ -77,6 +77,7 @@ export default function UpcomingGame(props) {
                         {
                             (props.currentGame.owner === props.currentUser.uid) &&
                             <Button variant="contained" color="secondary" size="large"
+                                    disabled={props.currentPlayers?.length < 6}
                                     classes={{root: classes.leaveGameButton}}
                                     onClick={startGameClicked}>
                                 Start Game
