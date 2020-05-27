@@ -266,3 +266,4 @@ sketch
 # Markdown Navigator plugin
 
 # End of https://www.gitignore.io/api/node,react,intellij,webstorm
+/build/
