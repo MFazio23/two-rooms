@@ -8,6 +8,7 @@ import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import {makeStyles} from "@material-ui/core/styles";
 import WinningTeamBadges from "./WinningTeamBadges";
+import SpinnerButton from "./SpinnerButton";
 
 const useStyles = makeStyles(theme => ({
     winningTeamDialog: {
@@ -25,6 +26,8 @@ const useStyles = makeStyles(theme => ({
 
 export default function WinningTeamDialog(props) {
     const classes = useStyles();
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
     const [winningTeams, setWinningTeams] = useState(props.winningTeams || []);
 
     const toggleWinningTeam = (team) => {
@@ -33,6 +36,13 @@ export default function WinningTeamDialog(props) {
         } else {
             setWinningTeams(winningTeams.concat([team]))
         }
+    }
+
+    const selectWinnersClicked = async () => {
+        setLoading(true);
+        await props.winningTeamsSelected(winningTeams)
+        setLoading(false);
+        setSuccess(true);
     }
 
     return (
@@ -47,11 +57,12 @@ export default function WinningTeamDialog(props) {
 
                     <Typography>Please select the winning team(s) from the list below.</Typography>
 
-                    <WinningTeamBadges winners={winningTeams} toggleWinningTeam={toggleWinningTeam}/>
+                    <WinningTeamBadges winners={winningTeams} toggleWinningTeam={toggleWinningTeam}
+                                       currentPlayers={props.currentPlayers}/>
                 </CardContent>
                 <CardActions className={classes.actions}>
-                    <Button color="primary" size="large" variant="contained"
-                            onClick={() => props.winningTeamsSelected(winningTeams)}>Select Winners</Button>
+                    <SpinnerButton buttonClicked={selectWinnersClicked} loading={loading} success={success}
+                                   text="Select Winner(s)" buttonColor="primary"/>
                 </CardActions>
             </Card>
         </Dialog>

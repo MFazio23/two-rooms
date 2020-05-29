@@ -56,16 +56,16 @@ export default function EndedGame(props) {
     const [dialogOpen, setDialogOpen] = useState(false);
 
     const closeDialog = () => {
-        setDialogOpen(true)//false)
+        setDialogOpen(false)
     }
 
-    const winningTeamsSelected = (winners) => {
-        selectWinners(props.currentGame.gameCode, winners);
+    const winningTeamsSelected = async (winners) => {
+        await selectWinners(props.currentGame.gameCode, winners);
         setDialogOpen(false);
     }
 
-    const newGame = () => {
-        logOut();
+    const newGame = async () => {
+        await logOut();
     }
 
     return (
@@ -84,7 +84,8 @@ export default function EndedGame(props) {
                         <Button color="primary" size="large" variant="contained" onClick={() => setDialogOpen(true)}>
                             Select Winners
                         </Button>}
-                        <WinningTeamBadges winners={props.currentGame.winningTeams}/>
+                        <WinningTeamBadges winners={props.currentGame.winningTeams}
+                                           currentPlayers={props.currentPlayers}/>
                         <Button color="secondary" size="large" variant="contained" onClick={newGame}>
                             New Game?
                         </Button>
@@ -94,13 +95,13 @@ export default function EndedGame(props) {
                 <Card className={classes.card}>
                     <CardHeader subheader="Current Players"/>
                     <CardContent>
-                        <PlayersGrid currentUser={props.currentUser}
+                        <PlayersGrid currentUser={props.currentUser} currentGame={props.currentGame}
                                      currentPlayers={props.currentPlayers}
                                      showRole={props.currentGame.winningTeams?.length > 0}/>
                     </CardContent>
                 </Card>
             </div>
-            <WinningTeamDialog dialogOpen={dialogOpen} onClose={closeDialog}
+            <WinningTeamDialog dialogOpen={dialogOpen} onClose={closeDialog} currentPlayers={props.currentPlayers}
                                winningTeams={props.currentGame.winningTeams}
                                winningTeamsSelected={winningTeamsSelected}/>
         </div>

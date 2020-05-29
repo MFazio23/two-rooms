@@ -8,7 +8,7 @@ import red from "@material-ui/core/colors/red";
 import green from "@material-ui/core/colors/green";
 
 const useStyles = makeStyles(theme => ({
-    currentUser: {
+    currentUserOrOwner: {
         fontWeight: 'bold'
     },
     blue: {
@@ -30,9 +30,10 @@ export default function PlayersGrid(props) {
     const playerItem = (player) => {
         const isCurrentUser = props.currentUser.uid === player.uid;
         const playerRole = gameRoles?.find(role => role.id === player.role) || {};
+        const isOwner = props.currentGame?.owner === player.uid;
 
         return (<Grid item md={3} xs={6} key={player.uid}>
-            <Typography variant="body1" className={isCurrentUser ? classes.currentUser : ''}
+            <Typography variant="body1" className={isCurrentUser || isOwner ? classes.currentUserOrOwner : ''}
                         color={isCurrentUser ? 'secondary' : 'initial'}>{player.name}</Typography>
             {props.showRole &&
             <Typography variant="subtitle2"

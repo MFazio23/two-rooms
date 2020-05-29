@@ -73,7 +73,8 @@ export default function UpcomingGame(props) {
                 <Card className={classes.card}>
                     <CardHeader subheader="Current Players"/>
                     <CardContent>
-                        <PlayersGrid currentUser={props.currentUser} currentPlayers={props.currentPlayers}/>
+                        <PlayersGrid currentUser={props.currentUser} currentPlayers={props.currentPlayers}
+                                     currentGame={props.currentGame}/>
                     </CardContent>
                     <CardActions className={classes.leaveGameButtons}>
                         <Button variant="contained" size="large" classes={{root: classes.leaveGameButton}}
