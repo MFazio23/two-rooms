@@ -6,9 +6,9 @@ import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import Button from "@material-ui/core/Button";
 import {joinGame} from "../api"
-import CircularProgress from "@material-ui/core/CircularProgress";
 import clsx from "clsx";
 import GameEntryField from "../components/GameEntryField";
+import SpinnerButton from "../components/SpinnerButton";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -128,13 +128,8 @@ export default function JoinGame(props) {
                     </div>
                 </CardContent>
                 <CardActions className={classes.joinGameButtons}>
-                    <div className={classes.wrapper}>
-                        <Button variant="contained" type="submit" size="large" color="primary"
-                                className={joinGameButtonClassname} onClick={joinGameClicked} disabled={loading}>
-                            Join Game
-                        </Button>
-                        {loading && <CircularProgress size={24} className={classes.buttonProgress}/>}
-                    </div>
+                    <SpinnerButton buttonClicked={joinGameClicked} loading={loading} success={success}
+                                   text="Join Game"/>
                     <Button variant="contained" size="large" color="default"
                             onClick={clearForm}>
                         Clear Form

@@ -7,8 +7,8 @@ import gameRoles from "../gameRoles.json";
 import RoundTimer from "../components/RoundTimer";
 import Typography from "@material-ui/core/Typography";
 import {blue, green, red} from "@material-ui/core/colors";
-import Button from "@material-ui/core/Button";
-import {nextRound, startRound, endGame} from "../api";
+import {endGame, nextRound, startRound} from "../api";
+import SpinnerButton from "../components/SpinnerButton";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -53,6 +53,9 @@ const calculateSwapCount = (playerCount, roundNumber) => {
 export default function InProgressGame(props) {
     const classes = useStyles();
 
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
+
     const currentPlayer = props.currentPlayers?.find(p => p.uid === props.currentUser.uid) || {};
 
     const isOwner = currentPlayer.uid === props.currentGame.owner;
@@ -76,17 +79,19 @@ export default function InProgressGame(props) {
     const roundActionText = !props.currentGame.roundEndDateTime ? 'Start Round' :
         props.currentGame.roundNumber < 3 ? 'Next Round' : 'Pick Winners';
 
-    const roundAction = () => {
-        setDisplayRoundActionButton(false);
-
-        if(!props.currentGame.roundEndDateTime) {
-            startRound(props.currentGame.gameCode, props.currentGame.roundNumber);
+    const roundAction = async () => {
+        setLoading(true);
+        if (!props.currentGame.roundEndDateTime) {
+            await startRound(props.currentGame.gameCode, props.currentGame.roundNumber);
         } else if (props.currentGame.roundNumber < 3) {
-            nextRound(props.currentGame.gameCode, props.currentGame.roundNumber);
+            await nextRound(props.currentGame.gameCode, props.currentGame.roundNumber);
         } else {
-            endGame(props.currentGame.gameCode);
+            await endGame(props.currentGame.gameCode);
         }
+        setLoading(false);
+        setSuccess(true);
 
+        setDisplayRoundActionButton(false);
     }
 
     return props.currentGame && (
@@ -101,8 +106,9 @@ export default function InProgressGame(props) {
                                     onRoundEnd={(roundOver) => setDisplayRoundActionButton(roundOver)}/>
                         <Typography>Swap {swapCount} {swapCount === 1 ? 'person' : 'people'} after round</Typography>
                         {isOwner && displayRoundActionButton &&
-                        <Button variant="contained" size="large" color="secondary" className={classes.roundAction}
-                                onClick={roundAction}>{roundActionText}</Button>}
+                        <SpinnerButton buttonClicked={roundAction} loading={loading} success={success}
+                                       disabled={props.currentPlayers?.length < 6} buttonColor="secondary"
+                                       text={roundActionText}/>}
                     </CardContent>
                 </Card>
 

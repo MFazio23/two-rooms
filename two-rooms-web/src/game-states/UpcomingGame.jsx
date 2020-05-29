@@ -9,7 +9,8 @@ import Button from "@material-ui/core/Button";
 import red from "@material-ui/core/colors/red";
 import PlayersGrid from "../components/PlayersGrid";
 import LeaveGameDialog from "../components/LeaveGameDialog";
-import { startGame } from "../api";
+import {startGame} from "../api";
+import SpinnerButton from "../components/SpinnerButton";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -38,15 +39,20 @@ const useStyles = makeStyles(theme => ({
 export default function UpcomingGame(props) {
     const classes = useStyles();
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     const startGameClicked = async () => {
+        setLoading(true);
         await startGame(props.currentGame.gameCode);
+        setLoading(false);
+        setSuccess(true);
     }
 
     const closeDialog = () => setDialogOpen(false)
 
     const logOutIfValid = (result) => {
-        if(result?.error) {
+        if (result?.error) {
             props.displaySnackbar(result.error);
         } else {
             props.logOut()
@@ -76,12 +82,9 @@ export default function UpcomingGame(props) {
                         </Button>
                         {
                             (props.currentGame.owner === props.currentUser.uid) &&
-                            <Button variant="contained" color="secondary" size="large"
-                                    disabled={props.currentPlayers?.length < 6}
-                                    classes={{root: classes.leaveGameButton}}
-                                    onClick={startGameClicked}>
-                                Start Game
-                            </Button>
+                            <SpinnerButton buttonClicked={startGameClicked} loading={loading} success={success}
+                                           disabled={props.currentPlayers?.length < 6} buttonColor="secondary"
+                                           text="Start Game"/>
                         }
                     </CardActions>
                 </Card>
@@ -89,5 +92,5 @@ export default function UpcomingGame(props) {
             <LeaveGameDialog open={dialogOpen} onClose={closeDialog} logOutIfValid={logOutIfValid}
                              currentGame={props.currentGame}/>
         </div>
-    ) : <div />
+    ) : <div/>
 }

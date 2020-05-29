@@ -9,6 +9,7 @@ import gameRoles from "../gameRoles.json";
 import RulesGrid from "../components/RulesGrid";
 import {createGame} from "../api";
 import GameEntryField from "../components/GameEntryField";
+import SpinnerButton from "../components/SpinnerButton";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -35,6 +36,8 @@ const twoRoomsPlayerName = "twoRoomsPlayerName";
 export default function CreateGame(props) {
     const classes = useStyles();
 
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
     const [playerName, setPlayerName] = useState(localStorage.getItem(twoRoomsPlayerName) || "");
     const [currentGame, setCurrentGame] = useState(
         Object.assign({
@@ -52,7 +55,10 @@ export default function CreateGame(props) {
     const createGameClicked = async () => {
         if (playerName && currentGame.roles) {
             localStorage.setItem(twoRoomsPlayerName, playerName);
+            setLoading(true);
             await createGame(playerName, currentGame.roles);
+            setLoading(false);
+            setSuccess(true);
         }
     };
 
@@ -76,10 +82,8 @@ export default function CreateGame(props) {
                     <RulesGrid currentGame={currentGame} handleSwitchChange={handleSwitchChange}/>
                 </CardContent>
                 <CardActions className={classes.createGameButtons}>
-                    <Button variant="contained" size="large" color="secondary"
-                            onClick={createGameClicked}>
-                        Create Game
-                    </Button>
+                    <SpinnerButton buttonClicked={createGameClicked} loading={loading} success={success}
+                                   text="Create Game" buttonColor="secondary"/>
                 </CardActions>
             </Card>
 

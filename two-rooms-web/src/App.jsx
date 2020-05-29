@@ -10,7 +10,6 @@ import InProgressGame from "./game-states/InProgressGame";
 import EndedGame from "./game-states/EndedGame";
 import {auth, db, logOut} from "./firebase"
 import Default from "./game-states/Default";
-import "./spinner.css";
 import Snackbar from "@material-ui/core/Snackbar";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from '@material-ui/icons/Close';
@@ -39,12 +38,6 @@ const theme = createMuiTheme({
 });
 
 function App() {
-    //TODO: This comes from FB.
-    const roundInfo = {
-        roundNumber: 2,
-        swapCount: 2
-    };
-
     const [currentGame, setCurrentGame] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
     const [currentPlayers, setCurrentPlayers] = useState([]);
@@ -180,7 +173,7 @@ function App() {
                           displaySnackbar={displaySnackbar}/>;
     } else if (flow === 'inProgress') {
         flowComponent = <InProgressGame updateFlow={updateFlow} currentGame={currentGame} currentUser={currentUser}
-                                        currentPlayers={currentPlayers} roundInfo={roundInfo}/>
+                                        currentPlayers={currentPlayers}/>
     } else if (flow === 'ended') {
         flowComponent = <EndedGame currentUser={currentUser} currentPlayers={currentPlayers} currentGame={currentGame}
                                    updateFlow={updateFlow}/>
