@@ -13,7 +13,7 @@
     "team": "red",
     "required": true,
     "shortDescription": "Be with the president",
-    "description": ""
+    "description": "You are a primary character. Everyone in the same room as you at the end of the game gains the “dead” condition. The Red Team wins if the President gains the “dead” condition.\nNote: if the Bomber receives the “dead” condition before the end of the game then the Bomber does not provide the “dead” condition to everyone in the same room."
   },
   {
     "id": "BlueTeam",

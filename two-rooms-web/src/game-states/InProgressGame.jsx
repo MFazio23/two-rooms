@@ -12,6 +12,11 @@ import SpinnerButton from "../components/SpinnerButton";
 import LeaveGameDialog from "../components/LeaveGameDialog";
 import Button from "@material-ui/core/Button";
 import {cancelGame} from '../api';
+import Collapse from "@material-ui/core/Collapse";
+import CardActions from "@material-ui/core/CardActions";
+import IconButton from "@material-ui/core/IconButton";
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import clsx from "clsx";
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -43,6 +48,16 @@ const useStyles = makeStyles(theme => ({
     },
     roundAction: {
         marginTop: 10
+    },
+    expand: {
+        transform: 'rotate(0deg)',
+        marginLeft: 'auto',
+        transition: theme.transitions.create('transform', {
+            duration: theme.transitions.duration.shortest,
+        }),
+    },
+    expandOpen: {
+        transform: 'rotate(180deg)',
     }
 }));
 
@@ -59,6 +74,7 @@ export default function InProgressGame(props) {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [expanded, setExpanded] = useState(false);
 
     const currentPlayer = props.currentPlayers?.find(p => p.uid === props.currentUser.uid) || {};
 
@@ -80,6 +96,8 @@ export default function InProgressGame(props) {
             props.logOut()
         }
     }
+
+    const handleExpandClick = () => setExpanded(!expanded);
 
     const getTeamClass = (team) => {
         let teamClass = 'grayTeam';
@@ -134,7 +152,23 @@ export default function InProgressGame(props) {
                     <CardContent>
                         {role.shortDescription}
                     </CardContent>
-                    {/*TODO: Add full description in a expandable panel.*/}
+                    <CardActions>
+                        <IconButton
+                            className={clsx(classes.expand, {
+                                [classes.expandOpen]: expanded,
+                            })}
+                            onClick={handleExpandClick}
+                            aria-expanded={expanded}
+                            aria-label="show more"
+                        >
+                            <ExpandMoreIcon />
+                        </IconButton>
+                    </CardActions>
+                    <Collapse in={expanded} timeout="auto" unmountOnExit>
+                        <CardContent>
+                            <Typography paragraph>{role.description}</Typography>
+                        </CardContent>
+                    </Collapse>
                 </Card>
                 <Button variant="contained" size="large" classes={{root: classes.leaveGameButton}}
                         onClick={() => setDialogOpen(true)}>
