@@ -68,24 +68,28 @@ export default function EndedGame(props) {
         await logOut();
     }
 
+    const statusHeader = `${props.isCanceled ? 'Game Canceled' : 'Game Over'}: [${props.currentGame.gameCode}]`;
+
+    const winningTeamText = props.isCanceled ? "Canceled" : (props.currentGame.winningTeams?.join(", ") || "???");
+
     return (
         <div className={classes.container}>
             <div className={classes.container}>
                 <Card className={classes.card}>
-                    <CardHeader title="Two Rooms and a Boom" subheader={`Game Over: [${props.currentGame.gameCode}]`}/>
+                    <CardHeader title="Two Rooms and a Boom" subheader={statusHeader}/>
                     <CardContent className={classes.roles}>
                         <div className={classes.winningTeamSection}>
                             <Typography variant="h6" component="span">Winning
                                 Team{props.currentGame.winningTeams?.length > 1 ? 's' : ''}: </Typography>
                             <Typography className={classes.winningTeamLabel} variant="h4"
-                                        component="span">{props.currentGame.winningTeams?.join(", ") || "???"}</Typography>
+                                        component="span">{winningTeamText}</Typography>
                         </div>
-                        {(props.currentUser.uid === props.currentGame.owner) &&
+                        {(props.currentUser.uid === props.currentGame.owner) && !props.isCanceled &&
                         <Button color="primary" size="large" variant="contained" onClick={() => setDialogOpen(true)}>
                             Select Winners
                         </Button>}
-                        <WinningTeamBadges winners={props.currentGame.winningTeams}
-                                           currentPlayers={props.currentPlayers}/>
+                        {!props.isCanceled && <WinningTeamBadges winners={props.currentGame.winningTeams}
+                                           currentPlayers={props.currentPlayers}/>}
                         <Button color="secondary" size="large" variant="contained" onClick={newGame}>
                             New Game?
                         </Button>
@@ -97,7 +101,7 @@ export default function EndedGame(props) {
                     <CardContent>
                         <PlayersGrid currentUser={props.currentUser} currentGame={props.currentGame}
                                      currentPlayers={props.currentPlayers}
-                                     showRole={props.currentGame.winningTeams?.length > 0}/>
+                                     showRole={props.isCanceled || props.currentGame.winningTeams?.length > 0}/>
                     </CardContent>
                 </Card>
             </div>

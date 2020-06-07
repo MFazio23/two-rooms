@@ -226,6 +226,37 @@ class Functions {
             }
         }
 
+    @FunctionName("cancelGame")
+    fun cancelGame(
+        @HttpTrigger(
+            name = "cancelGame",
+            methods = [HttpMethod.POST, HttpMethod.PUT],
+            authLevel = AuthorizationLevel.ANONYMOUS
+        ) request: HttpRequestMessage<String?>,
+        context: ExecutionContext
+    ): HttpResponseMessage? =
+        runFun(request, context) {
+            val requestBody = request.body
+                ?: return@runFun request.badRequest("The entered body is empty.")
+
+            val cancelGameAPIRequest = gson.fromJson<UpdateGameAPIRequest>(requestBody)
+
+            val response = FirebaseHandler.cancelGame(
+                cancelGameAPIRequest.gameCode,
+                cancelGameAPIRequest.token
+            )
+
+            return@runFun if (response.error == null) {
+                request.respond(
+                    HttpStatus.OK,
+                    null,
+                    response.data
+                )
+            } else {
+                request.badRequest(response.error)
+            }
+        }
+
     @FunctionName("startRound")
     fun startRound(
         @HttpTrigger(

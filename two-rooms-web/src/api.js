@@ -110,6 +110,20 @@ export async function endGame(gameCode) {
     }
 }
 
+export async function cancelGame(gameCode) {
+    try {
+        const token = await auth().currentUser.getIdToken();
+        const result = await axios.post(`${baseURL}cancelGame`, {gameCode, token})
+
+        return result.data.data
+    } catch (ex) {
+        console.error(ex)
+        return {
+            "error": ex?.response?.data?.message || "An exception occurred when trying to cancel a game."
+        }
+    }
+}
+
 export async function selectWinners(gameCode, winners) {
     try {
         const token = await auth().currentUser.getIdToken();

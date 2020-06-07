@@ -9,6 +9,9 @@ import Typography from "@material-ui/core/Typography";
 import {blue, green, red} from "@material-ui/core/colors";
 import {endGame, nextRound, startRound} from "../api";
 import SpinnerButton from "../components/SpinnerButton";
+import LeaveGameDialog from "../components/LeaveGameDialog";
+import Button from "@material-ui/core/Button";
+import {cancelGame} from '../api';
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -55,6 +58,7 @@ export default function InProgressGame(props) {
 
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     const currentPlayer = props.currentPlayers?.find(p => p.uid === props.currentUser.uid) || {};
 
@@ -63,6 +67,19 @@ export default function InProgressGame(props) {
     const role = gameRoles?.find(role => role.id === currentPlayer.role) || {};
 
     const swapCount = calculateSwapCount(props.currentPlayers?.length || 0, props.currentGame.roundNumber)
+
+    const closeDialog = () => setDialogOpen(false)
+
+    const logOutIfValid = (result) => {
+        if (result?.error) {
+            props.displaySnackbar(result.error);
+        } else {
+            if(isOwner) {
+                cancelGame(props.currentGame.gameCode);
+            }
+            props.logOut()
+        }
+    }
 
     const getTeamClass = (team) => {
         let teamClass = 'grayTeam';
@@ -119,7 +136,14 @@ export default function InProgressGame(props) {
                     </CardContent>
                     {/*TODO: Add full description in a expandable panel.*/}
                 </Card>
+                <Button variant="contained" size="large" classes={{root: classes.leaveGameButton}}
+                        onClick={() => setDialogOpen(true)}>
+                    Leave This Game?
+                </Button>
             </div>
+
+            <LeaveGameDialog open={dialogOpen} onClose={closeDialog} logOutIfValid={logOutIfValid}
+                             currentGame={props.currentGame}/>
         </div>
     ) || <div/>
 }

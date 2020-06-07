@@ -61,6 +61,9 @@ function App() {
             case "Ended":
                 setFlow("ended");
                 break;
+            case "Canceled":
+                setFlow("canceled");
+                break;
             default:
                 setFlow("join");
                 break;
@@ -173,10 +176,10 @@ function App() {
                           displaySnackbar={displaySnackbar}/>;
     } else if (flow === 'inProgress') {
         flowComponent = <InProgressGame updateFlow={updateFlow} currentGame={currentGame} currentUser={currentUser}
-                                        currentPlayers={currentPlayers}/>
-    } else if (flow === 'ended') {
+                                        currentPlayers={currentPlayers} logOut={removeListenersAndLogOut}/>
+    } else if (flow === 'ended' || flow === 'canceled') {
         flowComponent = <EndedGame currentUser={currentUser} currentPlayers={currentPlayers} currentGame={currentGame}
-                                   updateFlow={updateFlow}/>
+                                   updateFlow={updateFlow} isCanceled={flow === 'canceled'}/>
     }
 
     return (

@@ -214,6 +214,46 @@ object FirebaseHandler {
         return FirebaseResponse(null, errorMessage)
     }
 
+    fun cancelGame(gameCode: String, token: String): FirebaseResponse<String> {
+        if (token.isBlank()) {
+            return FirebaseResponse(null, "Access token is required.")
+        }
+
+        val currentGameResponse = this.findFullGame(gameCode)
+
+        if (currentGameResponse.error != null || currentGameResponse.data == null) {
+            return FirebaseResponse(null, currentGameResponse.error)
+        }
+
+        val currentGame: TwoRoomsGame = currentGameResponse.data
+
+        val firebaseToken: FirebaseToken? = FirebaseAuth.getInstance().verifyIdToken(token)
+
+        val tokenUID = firebaseToken?.uid
+
+        val tokenClaims = firebaseToken?.claims
+
+        val errorMessage: String? = when {
+            tokenClaims == null -> "The entered token cannot be verified."
+            !tokenClaims.containsKey("userType") ||
+                !tokenClaims.containsKey("user_id") -> "The entered token is invalid."
+            tokenClaims["userType"] != gameOwnerUserType || tokenUID != currentGame.ownerUID ->
+                "Only game owners can cancel a game."
+            else -> null
+        }
+
+        if (errorMessage == null) {
+            val (result, fuelError) = this.restClient.cancelGame(currentGame.gameCode)
+
+            return FirebaseResponse(
+                result,
+                fuelError?.message
+            )
+        }
+
+        return FirebaseResponse(null, errorMessage)
+    }
+
     fun findGame(gameCode: String): FirebaseResponse<TwoRoomsGame> {
         val findGameResponse = this.restClient.findGame(gameCode)
 
