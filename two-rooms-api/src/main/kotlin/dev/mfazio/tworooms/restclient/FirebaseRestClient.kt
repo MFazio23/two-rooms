@@ -321,7 +321,7 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
             val notRequiredRoles = game.roles.filter { !it.isRequired }
 
             val updatedPlayers = allPlayers
-                .filter { it != gambler }
+                .filter { it.uid != gambler?.uid }
                 .mapIndexed { ind, player ->
                     val roleInd = floor(ind / 2.0).toInt() - 1
                     player.copy(
