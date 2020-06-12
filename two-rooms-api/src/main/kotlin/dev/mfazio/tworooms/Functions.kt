@@ -24,7 +24,7 @@ class Functions {
     ): HttpResponseMessage? =
         runFun(request, context) {
             val gameCode = request.queryParameters["gameCode"]
-                ?: return@runFun request.badRequest("The 'gameCode' query string parameter is required.")
+                ?: return@runFun request.badRequest("The 'gameCode' query string parameter is required.  Please include it..")
 
             val response = FirebaseHandler.findFullGame(gameCode)
 
