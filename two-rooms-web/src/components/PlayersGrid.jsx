@@ -37,7 +37,7 @@ export default function PlayersGrid(props) {
                         color={isCurrentUser ? 'secondary' : 'initial'}>{player.name}</Typography>
             {props.showRole &&
             <Typography variant="subtitle2"
-                        classes={{root: classes[player.team.toLowerCase()]}}>{playerRole.text}</Typography>}
+                        classes={{root: classes[player.team?.toLowerCase() || 'gray']}}>{playerRole.text}</Typography>}
         </Grid>)
     };
 
