@@ -105,8 +105,10 @@ function App() {
                     const data = snapshot.data()
 
                     if (data) {
-                        const currentGameRoles =
-                            gameRoles.reduce((obj, role) => (obj[role.id] = data.roles.includes(role.id), obj), {});
+                        const currentGameRoles = gameRoles.reduce((obj, role) => {
+                            obj[role.id] = role.required
+                            return obj
+                        }, {});
 
                         setCurrentGame({
                             gameCode: data.gameCode,

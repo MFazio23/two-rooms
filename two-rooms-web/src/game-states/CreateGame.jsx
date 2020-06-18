@@ -41,7 +41,10 @@ export default function CreateGame(props) {
     const [playerName, setPlayerName] = useState(localStorage.getItem(twoRoomsPlayerName) || "");
     const [currentGame, setCurrentGame] = useState(
         Object.assign({
-            roles: gameRoles.reduce((obj, role) => (obj[role.id] = role.required, obj), {})
+            roles: gameRoles.reduce((obj, role) => {
+                obj[role.id] = role.required
+                return obj
+            }, {})
         })
     );
 

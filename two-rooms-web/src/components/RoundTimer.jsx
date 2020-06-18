@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import Typography from "@material-ui/core/Typography";
 import {DateTime} from "luxon";
-import {makeStyles} from "@material-ui/core/styles";
 
 const notStartedYet = "Not Started Yet";
 const timesUp = "Time's Up!";

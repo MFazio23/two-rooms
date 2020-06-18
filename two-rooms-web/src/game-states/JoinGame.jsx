@@ -6,7 +6,6 @@ import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import Button from "@material-ui/core/Button";
 import {joinGame} from "../api"
-import clsx from "clsx";
 import GameEntryField from "../components/GameEntryField";
 import SpinnerButton from "../components/SpinnerButton";
 
@@ -62,10 +61,6 @@ export default function JoinGame(props) {
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
 
-    const joinGameButtonClassname = clsx({
-        [classes.buttonSuccess]: success,
-    });
-
     const clearForm = () => {
         setGameCode("")
         setPlayerName("")
@@ -78,7 +73,7 @@ export default function JoinGame(props) {
             localStorage.setItem(twoRoomsPlayerName, playerName);
             setLoading(true);
             try {
-                const joinGameResult = await joinGame(gameCode.toUpperCase(), playerName);
+                await joinGame(gameCode.toUpperCase(), playerName);
                 setLoading(false);
                 setSuccess(true);
             } catch (e) {

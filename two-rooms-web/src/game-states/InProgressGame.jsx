@@ -129,7 +129,7 @@ export default function InProgressGame(props) {
         setDisplayRoundActionButton(false);
     }
 
-    return props.currentGame && (
+    return (props.currentGame && (
         <div className={classes.container}>
             <div className={classes.container}>
                 <Card className={classes.card}>
@@ -179,5 +179,5 @@ export default function InProgressGame(props) {
             <LeaveGameDialog open={dialogOpen} onClose={closeDialog} logOutIfValid={logOutIfValid}
                              currentGame={props.currentGame}/>
         </div>
-    ) || <div/>
+    )) || <div/>
 }
