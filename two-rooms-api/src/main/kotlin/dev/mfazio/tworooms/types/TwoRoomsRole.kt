@@ -11,6 +11,7 @@ enum class TwoRoomsRole(val isRequired: Boolean = false, val requiredTeam: TwoRo
     RedTeam(true, TwoRoomsTeam.Red),
     Gambler(true, TwoRoomsTeam.Gray),
     Angel,
+    Blind,
     Clown,
     Demon,
     Mime,
