@@ -11,7 +11,7 @@ import {createGame} from "../api";
 import GameEntryField from "../components/GameEntryField";
 import SpinnerButton from "../components/SpinnerButton";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(_ => ({
     container: {
         display: "flex",
         flexDirection: "column",
