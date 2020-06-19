@@ -5,7 +5,7 @@
     "team": "blue",
     "required": true,
     "shortDescription": "Avoid the bomber",
-    "description": ""
+    "description": "You are a primary character. Blue Team wins if you do not gain the “dead” condition."
   },
   {
     "id": "Bomber",
@@ -28,8 +28,8 @@
     "text": "Red Team",
     "team": "red",
     "required": true,
-    "shortDescription": "",
-    "description": ""
+    "shortDescription": "Get the bomber to be with the President.",
+    "description": "You are on Red Team. You win if the President gains the “dead” condition."
   },
   {
     "id": "Gambler",
@@ -37,62 +37,62 @@
     "team": "gray",
     "required": true,
     "shortDescription": "Guess if red, blue, or neither team won",
-    "description": ""
+    "description": "At the end of the last round, before all players reveal their cards, you must publicly announce which team (Red Team, Blue Team, or neither) you think won the game. Win only if you are correct."
   },
   {
     "id": "Blind",
     "text": "Blind",
     "required": false,
     "shortDescription": "Keep your eyes closed",
-    "description": ""
+    "description": "You begin with the “blind” condition. Players with the “blind” condition must do their best to never open their eyes during the game. Don’t worry, it is a short game."
   },
   {
     "id": "Clown",
     "text": "Clown",
     "required": false,
     "shortDescription": "Smile... always",
-    "description": ""
+    "description": "Do your best to smile at all times."
   },
   {
     "id": "ShyGuy",
     "text": "Shy Guy",
     "required": false,
-    "shortDescription": "",
-    "description": ""
+    "shortDescription": "No sharing or reveals because you're 'shy'",
+    "description": "You begin with the “shy” condition. Players with the “shy” condition may not reveal any part of their card to any player."
   },
   {
     "id": "Mime",
     "text": "Mime",
     "required": false,
     "shortDescription": "Never speak",
-    "description": ""
+    "description": "Do your best to not make any noise"
   },
   {
     "id": "Angel",
     "text": "Angel",
     "required": false,
     "shortDescription": "Tell the truth",
-    "description": ""
+    "description": "You begin with the “honest” condition. Players with the “honest” condition must always verbally tell the truth. This means that you are permitted to lie as long as it is not verbally."
   },
   {
     "id": "Demon",
     "text": "Demon",
     "required": false,
     "shortDescription": "Lie",
-    "description": ""
+    "description": "You begin with the “liar” condition. Players with the “liar” condition must always verbally tell lies. This means that you are permitted to tell the truth as long as it is not verbally."
   },
   {
     "id": "Rival",
     "text": "Rival",
     "required": false,
-    "shortDescription": "",
-    "description": ""
+    "shortDescription": "Avoid the President",
+    "description": "You win if you are NOT in the same room as the President at the end of the game."
   },
   {
     "id": "Survivor",
     "text": "Survivor",
     "required": false,
-    "shortDescription": "",
-    "description": ""
+    "shortDescription": "Avoid the bomber",
+    "description": "You win if you are NOT in the same room as the Bomber at the end of the game."
   }
 ]
