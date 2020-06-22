@@ -3,7 +3,9 @@ package dev.mfazio.tworooms.types
 import dev.mfazio.tworooms.restclient.types.ArrayValueObject
 import dev.mfazio.tworooms.restclient.types.FirebaseDocument
 import dev.mfazio.tworooms.restclient.types.StringValueObject
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class TwoRoomsGame(
     val gameCode: String,
     val status: GameStatus = GameStatus.Unknown,

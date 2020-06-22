@@ -2,7 +2,9 @@ package dev.mfazio.tworooms.types
 
 import dev.mfazio.tworooms.restclient.types.FirebaseDocument
 import dev.mfazio.tworooms.restclient.types.StringValueObject
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class TwoRoomsPlayer(
     val uid: String,
     val name: String,

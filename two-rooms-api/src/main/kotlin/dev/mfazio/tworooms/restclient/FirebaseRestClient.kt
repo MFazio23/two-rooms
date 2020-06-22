@@ -6,14 +6,13 @@ import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPatch
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
-import com.github.salomonbrys.kotson.fromJson
 import com.google.auth.oauth2.AccessToken
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.auth.UserRecord
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import dev.mfazio.tworooms.restclient.types.*
 import dev.mfazio.tworooms.types.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -22,6 +21,7 @@ import kotlin.random.Random
 
 class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
 
+    private val json = Json(context = ValueObject.valueObjectModule)
     private val scoped: GoogleCredentials = credentials.createScoped("https://www.googleapis.com/auth/datastore")
     private var accessToken: AccessToken
 
@@ -42,7 +42,9 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
         val (responseString, error) = result
 
         return FirebaseRestResponse(
-            if (responseString != null) firebaseDocumentGson.fromJson<FirebaseDocument>(responseString) else null,
+            if (responseString != null) {
+                json.parse(FirebaseDocument.serializer(), responseString)
+            } else null,
             error
         )
     }
@@ -54,7 +56,7 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
             .header("Authorization", "Bearer ${accessToken.tokenValue}")
             .responseString()
         val (responseString, error) = result
-        val documentsList = firebaseDocumentGson.fromJson<FirebaseDocumentList>(responseString ?: "")
+        val documentsList = json.parse(FirebaseDocumentList.serializer(), responseString ?: "")
 
         return FirebaseRestResponse(
             documentsList.documents,
@@ -71,7 +73,8 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
             val existingGameResponse = findGame(gameCode)
         } while (existingGameResponse.data != null)
 
-        val body = Gson().toJson(
+        val body = json.stringify(
+            FirebaseDocument.serializer(),
             FirebaseDocument(
                 fields = mapOf(
                     "gameCode" to StringValueObject(gameCode),
@@ -153,7 +156,8 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
 
     private fun addUserToGame(gameCode: String, name: String, uid: String): Result<String, FuelError> {
         checkAccessToken()
-        val body = Gson().toJson(
+        val body = json.stringify(
+            FirebaseDocument.serializer(),
             FirebaseDocument(
                 fields = mapOf(
                     "name" to StringValueObject(name),
@@ -188,7 +192,8 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
         //TODO: Make this all a single transaction.
 
         distributedPlayers.forEach { player ->
-            val body = Gson().toJson(
+            val body = json.stringify(
+                FirebaseDocument.serializer(),
                 FirebaseDocument(
                     fields = mapOf(
                         "name" to StringValueObject(player.name),
@@ -223,7 +228,8 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
     fun startRound(game: TwoRoomsGame, roundNumber: Int): Result<String, FuelError> {
         checkAccessToken()
 
-        val body = Gson().toJson(
+        val body = json.stringify(
+            FirebaseDocument.serializer(),
             FirebaseDocument(
                 fields = mapOf(
                     "roundEndDateTime" to StringValueObject(
@@ -247,7 +253,8 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
     fun nextRound(game: TwoRoomsGame, roundNumber: Int): Result<String, FuelError> {
         checkAccessToken()
 
-        val body = Gson().toJson(
+        val body = json.stringify(
+            FirebaseDocument.serializer(),
             FirebaseDocument(
                 fields = mapOf(
                     "roundNumber" to IntegerValueObject(roundNumber + 1),
@@ -269,7 +276,8 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
     fun pickWinners(game: TwoRoomsGame, winners: List<TwoRoomsTeam>): Result<String, FuelError> {
         checkAccessToken()
 
-        val body = Gson().toJson(
+        val body = json.stringify(
+            FirebaseDocument.serializer(),
             FirebaseDocument(
                 fields = mapOf(
                     "winners" to ArrayValueObject(ValueObjectArray(winners.map { StringValueObject(it.name) }))
@@ -290,7 +298,8 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
     private fun updateGameStatus(gameCode: String, status: GameStatus): Result<String, FuelError> {
         checkAccessToken()
 
-        val body = Gson().toJson(
+        val body = json.stringify(
+            FirebaseDocument.serializer(),
             FirebaseDocument(fields = mapOf("status" to StringValueObject(status.name)))
         )
 
@@ -338,9 +347,9 @@ class FirebaseRestClient(credentials: GoogleCredentials, collectionId: String) {
             (updatedPlayers + gambler).filterNotNull()
         }
 
-    companion object {
+    /*companion object {
         private val firebaseDocumentGson = GsonBuilder()
             .registerTypeAdapter(ValueObject::class.java, ValueObjectDeserializer())
             .create()
-    }
+    }*/
 }

@@ -2,7 +2,9 @@ package dev.mfazio.tworooms.types
 
 import dev.mfazio.tworooms.restclient.types.ArrayValueObject
 import dev.mfazio.tworooms.restclient.types.StringValueObject
+import kotlinx.serialization.Serializable
 
+@Serializable
 enum class TwoRoomsRole(val isRequired: Boolean = false, val requiredTeam: TwoRoomsTeam? = null) {
     Unknown,
     President(true, TwoRoomsTeam.Blue),
