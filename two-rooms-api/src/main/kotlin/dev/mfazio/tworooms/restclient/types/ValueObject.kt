@@ -1,9 +1,9 @@
 package dev.mfazio.tworooms.restclient.types
 
-import dev.mfazio.tworooms.types.TwoRoomsRole
-import dev.mfazio.tworooms.types.TwoRoomsTeam
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.json.JsonInput
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.modules.SerializersModule
 
@@ -29,18 +29,27 @@ interface ValueObject {
 @Serializable data class ArrayValueObject(val arrayValue: ValueObjectArray? = null) : ValueObject
 @Serializable data class ValueObjectArray(val values: List<ValueObject>) : ValueObject
 
-object ValueObjectSerializer: KSerializer<ValueObject> {
+object ValueObjectSerializer : KSerializer<ValueObject> {
     override val descriptor: SerialDescriptor
         get() = SerialDescriptor("ValueObject")
 
     override fun deserialize(decoder: Decoder): ValueObject {
-        println()
+        val input = decoder as? JsonInput ?: throw SerializationException("JsonInput could not be loaded properly.")
+        val obj = input.decodeJson() as? JsonObject ?: throw SerializationException("Expected a JsonObject")
 
-        return StringValueObject()
+        return if (obj.containsKey("arrayValue")) {
+            val valueObjects = obj.getObjectOrNull("arrayValue")?.getArrayOrNull("values")?.map {
+                convertValueObjectJsonObject(input.json, it.jsonObject)
+            }
+
+            if(valueObjects != null) {
+                ArrayValueObject(ValueObjectArray(valueObjects))
+            } else throw SerializationException("ArrayValue cannot be parsed correctly.")
+        } else convertValueObjectJsonObject(input.json, obj)
     }
 
     override fun serialize(encoder: Encoder, value: ValueObject) {
-        when(value) {
+        when (value) {
             is StringValueObject -> encoder.encode(StringValueObject.serializer(), value)
             is IntegerValueObject -> encoder.encode(IntegerValueObject.serializer(), value)
             is BooleanValueObject -> encoder.encode(BooleanValueObject.serializer(), value)
@@ -50,101 +59,11 @@ object ValueObjectSerializer: KSerializer<ValueObject> {
         }
     }
 
-}
-
-/*
-class ValueObjectDeserializer : JsonDeserializer<ValueObject> {
-    private val gson = Gson()
-
-    override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): ValueObject {
-        val jsonObject = json as JsonObject
-        return if (jsonObject.has("arrayValue")) {
-            jsonObject.get("arrayValue")?.asJsonObject?.let { arrayValue ->
-                if(arrayValue.has("values")) {
-                    arrayValue.getAsJsonArray("values")?.let { values ->
-                        ArrayValueObject(
-                            ValueObjectArray(
-                                values.map { value ->
-                                    convertValueObjectJsonObject(value as JsonObject)
-                                }
-                            )
-                        )
-                    }
-                } else {
-                    ArrayValueObject(
-                        ValueObjectArray(listOf())
-                    )
-                }
-            } ?: throw JsonParseException("Cannot parse the ArrayValueObject")
-        } else {
-            convertValueObjectJsonObject(jsonObject)
-        }
+    private fun convertValueObjectJsonObject(json: Json, jsonObject: JsonObject) = when {
+        jsonObject.containsKey("stringValue") -> json.fromJson(StringValueObject.serializer(), jsonObject)
+        jsonObject.containsKey("integerValue") -> json.fromJson(IntegerValueObject.serializer(), jsonObject)
+        jsonObject.containsKey("booleanValue") -> json.fromJson(BooleanValueObject.serializer(), jsonObject)
+        else -> throw SerializationException("Cannot find the ValueObject type: [${jsonObject}]")
     }
 
-    private fun convertValueObjectJsonObject(jsonObject: JsonObject) = when {
-        jsonObject.has("stringValue") -> gson.fromJson<StringValueObject>(jsonObject)
-        jsonObject.has("integerValue") -> gson.fromJson<IntegerValueObject>(jsonObject)
-        jsonObject.has("booleanValue") -> gson.fromJson<BooleanValueObject>(jsonObject)
-        else -> throw JsonParseException("Cannot find the ValueObject type: [${jsonObject}]")
-    }
-}*/
-
-fun main() {
-    val json = Json(context = ValueObject.valueObjectModule)
-    val body = """
-        {
-          "name": "projects/tworooms-66ba8/databases/(default)/documents/games/LWSGZK",
-          "fields": {
-            "gameCode": {
-              "stringValue": "LWSGZK"
-            },
-            "roles": {
-              "arrayValue": {
-                "values": [
-                  {
-                    "stringValue": "President"
-                  },
-                  {
-                    "stringValue": "Bomber"
-                  },
-                  {
-                    "stringValue": "BlueTeam"
-                  },
-                  {
-                    "stringValue": "RedTeam"
-                  },
-                  {
-                    "stringValue": "Gambler"
-                  },
-                  {
-                    "stringValue": "Clown"
-                  },
-                  {
-                    "stringValue": "Angel"
-                  },
-                  {
-                    "stringValue": "Demon"
-                  },
-                  {
-                    "stringValue": "Survivor"
-                  }
-                ]
-              }
-            },
-            "ownerUID": {
-              "stringValue": "4Yz9C8pgq7Yl8FjPghwZ6mFC97G3"
-            },
-            "status": {
-              "stringValue": "Created"
-            }
-          },
-          "createTime": "2020-05-12T03:46:22.501467Z",
-          "updateTime": "2020-05-12T03:46:22.501467Z"
-        }
-
-    """.trimIndent()
-
-    val vObj = json.parse(FirebaseDocument.serializer(), body)
-
-    println(vObj)
 }

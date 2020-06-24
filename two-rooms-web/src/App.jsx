@@ -106,8 +106,8 @@ function App() {
 
                     if (data) {
                         const currentGameRoles = gameRoles.reduce((obj, role) => {
-                            obj[role.id] = role.required
-                            return obj
+                            obj[role.id] = data.roles.includes(role.id);
+                            return obj;
                         }, {});
 
                         setCurrentGame({
