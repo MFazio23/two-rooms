@@ -1,5 +1,8 @@
 package dev.mfazio.tworooms.types
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class TwoRoomsTeam {
     Unknown,
     Gray,

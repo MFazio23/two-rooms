@@ -1,7 +1,5 @@
 package dev.mfazio.tworooms
 
-import com.github.salomonbrys.kotson.fromJson
-import com.google.gson.Gson
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
@@ -9,9 +7,11 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import dev.mfazio.tworooms.types.TwoRoomsRole
 import dev.mfazio.tworooms.types.TwoRoomsTeam
 import dev.mfazio.tworooms.types.api.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 
 class Functions {
-    private val gson = Gson()
+    private val json = Json(JsonConfiguration.Stable)
 
     @FunctionName("findGame")
     fun findGame(
@@ -52,7 +52,7 @@ class Functions {
             val requestBody = request.body
                 ?: return@runFun request.badRequest("The entered body is empty.")
 
-            val createGameAPIRequest = gson.fromJson<CreateGameAPIRequest>(requestBody)
+            val createGameAPIRequest = json.parse(CreateGameAPIRequest.serializer(), (requestBody))
 
             val response = FirebaseHandler.createGame(
                 createGameAPIRequest.name,
@@ -83,7 +83,7 @@ class Functions {
             val requestBody = request.body
                 ?: return@runFun request.badRequest("The entered body is empty.")
 
-            val joinGameAPIRequest = gson.fromJson<JoinGameAPIRequest>(requestBody)
+            val joinGameAPIRequest = json.parse(JoinGameAPIRequest.serializer(), requestBody)
 
             val response = FirebaseHandler.joinGame(
                 joinGameAPIRequest.gameCode,
@@ -114,7 +114,7 @@ class Functions {
             val requestBody = request.body
                 ?: return@runFun request.badRequest("The entered body is empty.")
 
-            val addRandomPlayersAPIRequest = gson.fromJson<AddRandomPlayersAPIRequest>(requestBody)
+            val addRandomPlayersAPIRequest = json.parse(AddRandomPlayersAPIRequest.serializer(), requestBody)
 
             val response = FirebaseHandler.addRandomPlayers(
                 addRandomPlayersAPIRequest.gameCode,
@@ -145,7 +145,7 @@ class Functions {
             val requestBody = request.body
                 ?: return@runFun request.badRequest("The entered body is empty.")
 
-            val removePlayerAPIRequest = gson.fromJson<RemovePlayerAPIRequest>(requestBody)
+            val removePlayerAPIRequest = json.parse(RemovePlayerAPIRequest.serializer(), requestBody)
 
             val response = FirebaseHandler.removePlayer(
                 removePlayerAPIRequest.gameCode,
@@ -177,7 +177,7 @@ class Functions {
             val requestBody = request.body
                 ?: return@runFun request.badRequest("The entered body is empty.")
 
-            val startGameAPIRequest = gson.fromJson<UpdateGameAPIRequest>(requestBody)
+            val startGameAPIRequest = json.parse(UpdateGameAPIRequest.serializer(), requestBody)
 
             val response = FirebaseHandler.startGame(
                 startGameAPIRequest.gameCode,
@@ -208,7 +208,7 @@ class Functions {
             val requestBody = request.body
                 ?: return@runFun request.badRequest("The entered body is empty.")
 
-            val endGameAPIRequest = gson.fromJson<UpdateGameAPIRequest>(requestBody)
+            val endGameAPIRequest = json.parse(UpdateGameAPIRequest.serializer(), requestBody)
 
             val response = FirebaseHandler.endGame(
                 endGameAPIRequest.gameCode,
@@ -239,7 +239,7 @@ class Functions {
             val requestBody = request.body
                 ?: return@runFun request.badRequest("The entered body is empty.")
 
-            val cancelGameAPIRequest = gson.fromJson<UpdateGameAPIRequest>(requestBody)
+            val cancelGameAPIRequest = json.parse(UpdateGameAPIRequest.serializer(), requestBody)
 
             val response = FirebaseHandler.cancelGame(
                 cancelGameAPIRequest.gameCode,
@@ -270,7 +270,7 @@ class Functions {
             val requestBody = request.body
                 ?: return@runFun request.badRequest("The entered body is empty.")
 
-            val updateRoundAPIRequest = gson.fromJson<UpdateRoundAPIRequest>(requestBody)
+            val updateRoundAPIRequest = json.parse(UpdateRoundAPIRequest.serializer(), requestBody)
 
             val response = FirebaseHandler.startRound(
                 updateRoundAPIRequest.gameCode,
@@ -302,7 +302,7 @@ class Functions {
             val requestBody = request.body
                 ?: return@runFun request.badRequest("The entered body is empty.")
 
-            val updateRoundAPIRequest = gson.fromJson<UpdateRoundAPIRequest>(requestBody)
+            val updateRoundAPIRequest = json.parse(UpdateRoundAPIRequest.serializer(), requestBody)
 
             val response = FirebaseHandler.nextRound(
                 updateRoundAPIRequest.gameCode,
@@ -334,7 +334,7 @@ class Functions {
             val requestBody = request.body
                 ?: return@runFun request.badRequest("The entered body is empty.")
 
-            val pickWinnersAPIRequest = gson.fromJson<PickWinnersAPIRequest>(requestBody)
+            val pickWinnersAPIRequest = json.parse(PickWinnersAPIRequest.serializer(), requestBody)
 
             val response = FirebaseHandler.pickWinners(
                 pickWinnersAPIRequest.gameCode,
