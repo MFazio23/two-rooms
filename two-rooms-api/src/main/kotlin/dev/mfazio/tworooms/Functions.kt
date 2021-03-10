@@ -52,7 +52,7 @@ class Functions {
             val requestBody = request.body
                 ?: return@runFun request.badRequest("The entered body is empty.")
 
-            val createGameAPIRequest = json.parse(CreateGameAPIRequest.serializer(), (requestBody))
+            val createGameAPIRequest = json.parse(CreateGameAPIRequest.serializer(), requestBody)
 
             val response = FirebaseHandler.createGame(
                 createGameAPIRequest.name,
@@ -360,6 +360,7 @@ class Functions {
     ): HttpResponseMessage? = try {
         function()
     } catch (ex: Exception) {
+        //TODO: Log this too.
         request.serverError("An exception occurred from the request.", ex)
     }
 }
